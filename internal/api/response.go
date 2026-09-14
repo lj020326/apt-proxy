@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	apperrors "github.com/soulteary/apt-proxy/internal/errors"
-	"github.com/soulteary/apt-proxy/internal/system"
+	apperrors "github.com/lj020326/apt-proxy/internal/errors"
+	"github.com/lj020326/apt-proxy/internal/system"
 )
 
 // API response types for JSON serialization

@@ -1,6 +1,6 @@
 FROM golang:1.27.1-alpine3.24 AS builder
 RUN apk add --no-cache ca-certificates tzdata git
-ARG TZ=Asia/Shanghai
+ARG TZ=Etc/UTC
 ENV TZ=${TZ}
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /build
@@ -20,7 +20,7 @@ FROM alpine:3.24
 RUN apk add --no-cache ca-certificates tzdata wget && \
     addgroup -g 1000 aptproxy && \
     adduser -D -u 1000 -G aptproxy aptproxy
-ARG TZ=Asia/Shanghai
+ARG TZ=Etc/UTC
 ENV TZ=${TZ}
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY --from=builder /out/apt-proxy /usr/bin/apt-proxy
