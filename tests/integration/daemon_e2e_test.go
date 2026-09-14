@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,9 +28,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/soulteary/apt-proxy/internal/cli"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/cli"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // freeListenPort returns a "host:port" address that is currently free.
