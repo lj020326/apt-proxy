@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ import (
 	"net/http"
 	"time"
 
-	httpkit "github.com/soulteary/http-kit"
+	httpkit "github.com/lj020326/http-kit"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 
-	tracing "github.com/soulteary/tracing-kit"
+	tracing "github.com/lj020326/tracing-kit"
 )
 
 // RetryableTransport wraps an http.RoundTripper with retry logic and tracing support

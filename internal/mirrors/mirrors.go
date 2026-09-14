@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // builtinMirrorURLs converts distro URLWithAlias list to full URL strings (single source for built-in mirrors).
@@ -150,9 +150,9 @@ func GetMirrorURLByAliases(reg *distro.Registry, osType int, alias string) strin
 			if u, ok := d.Aliases[alias]; ok {
 				return normalizeAliasURL(u)
 			}
-			// Support "cn:tsinghua" by stripping "cn:" prefix
-			if strings.HasPrefix(alias, "cn:") {
-				if u, ok := d.Aliases[strings.TrimPrefix(alias, "cn:")]; ok {
+			// Support "us:ubuntu" by stripping "us:" prefix
+			if strings.HasPrefix(alias, "us:") {
+				if u, ok := d.Aliases[strings.TrimPrefix(alias, "us:")]; ok {
 					return normalizeAliasURL(u)
 				}
 			}

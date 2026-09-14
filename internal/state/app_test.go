@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package state
 import (
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 func TestNewAppState(t *testing.T) {
@@ -117,7 +117,7 @@ func TestAppStateDebianSecurityMirror(t *testing.T) {
 
 func TestAppStateDebianSecurityAliasMetadata(t *testing.T) {
 	st := NewAppState()
-	st.SetDebianSecurityMirrorWithRegistry("cn:tsinghua", distro.NewBuiltinRegistry())
+	st.SetDebianSecurityMirrorWithRegistry("us:mit", distro.NewBuiltinRegistry())
 	if !st.DebianSecurityMirrorResolvedAlias() {
 		t.Fatal("Debian security alias metadata was not retained")
 	}
