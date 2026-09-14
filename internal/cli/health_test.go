@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v3"
-	health "github.com/soulteary/health-kit/v2"
+	health "github.com/lj020326/health-kit/v2"
 )
 
 // healthCheckerFunc adapts a closure into the health.Checker interface so
