@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +22,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/mirrors"
-	"github.com/soulteary/cli-kit/configutil"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/mirrors"
+	"github.com/lj020326/cli-kit/configutil"
 )
 
 var (

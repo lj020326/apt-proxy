@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,7 +110,7 @@ func getErrorPage(err error) string {
     <div class="error">
         <h1>Template Error</h1>
         <p>Failed to render the home page template.</p>
-        <p><a href="https://github.com/soulteary/apt-proxy" style="color: #3cabee;">GitHub Repository</a></p>
+        <p><a href="https://github.com/lj020326/apt-proxy" style="color: #3cabee;">GitHub Repository</a></p>
     </div>
 </body>
 </html>`

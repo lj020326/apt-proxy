@@ -1,10 +1,6 @@
 # APT Proxy
 
-[![Security Scan](https://github.com/soulteary/apt-proxy/actions/workflows/scan.yml/badge.svg)](https://github.com/soulteary/apt-proxy/actions/workflows/scan.yml) [![Release](https://github.com/soulteary/apt-proxy/actions/workflows/release.yaml/badge.svg)](https://github.com/soulteary/apt-proxy/actions/workflows/release.yaml) [![goreportcard](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=flat)](https://goreportcard.com/report/github.com/soulteary/apt-proxy) [![Docker Image](https://img.shields.io/docker/pulls/soulteary/apt-proxy.svg)](https://hub.docker.com/r/soulteary/apt-proxy)
-
-<p style="text-align: center;">
-  <a href="README.md">ENGLISH</a> | <a href="README_CN.md"  target="_blank">中文文档</a>
-</p>
+[![Security Scan](https://github.com/lj020326/apt-proxy/actions/workflows/scan.yml/badge.svg)](https://github.com/lj020326/apt-proxy/actions/workflows/scan.yml) [![Release](https://github.com/lj020326/apt-proxy/actions/workflows/release.yaml/badge.svg)](https://github.com/lj020326/apt-proxy/actions/workflows/release.yaml) [![goreportcard](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=flat)](https://goreportcard.com/report/github.com/lj020326/apt-proxy) [![Docker Image](https://img.shields.io/docker/pulls/lj020326/apt-proxy.svg)](https://hub.docker.com/r/lj020326/apt-proxy)
 
 <p align="center">
   <img src=".github/assets/apt-proxy-logo.png" alt="APT Proxy Logo" width="160"/>
@@ -20,9 +16,11 @@
 
 APT Proxy is a lightweight, high-performance caching proxy for package managers. It accelerates package downloads by caching frequently used packages locally, dramatically reducing download times for subsequent installations. Whether you're managing multiple servers, building Docker images, or working in bandwidth-constrained environments, APT Proxy helps you save time and bandwidth.
 
-<p align="center">
-  <img src=".github/assets/apt-proxy-webui-preview.jpg" alt="APT Proxy WebUI Preview" width="720"/>
-</p>
+## CI Status
+
+[![GitHub issues](https://img.shields.io/github/issues/lj020326/apt-proxy.svg?style=flat)](https://github.com/lj020326/apt-proxy/issues)
+[![GitHub stars](https://img.shields.io/github/stars/lj020326/apt-proxy.svg?style=flat)](https://github.com/lj020326/apt-proxy/stargazers)
+[![Docker Pulls - lj020326/apt-proxy](https://img.shields.io/docker/pulls/lj020326/apt-proxy.svg?style=flat)](https://hub.docker.com/repository/docker/lj020326/apt-proxy/)
 
 ### Key Features
 
@@ -37,12 +35,12 @@ APT Proxy is a lightweight, high-performance caching proxy for package managers.
 
 ## Supported Platforms
 
-Pre-built binaries (tar.gz on the [releases page](https://github.com/soulteary/apt-proxy/releases) and `.deb` / `.rpm` / `.apk` packages):
+Pre-built binaries (tar.gz on the [releases page](https://github.com/lj020326/apt-proxy/releases) and `.deb` / `.rpm` / `.apk` packages):
 
 - Linux: `amd64` (x86_64), `386` (i386), `arm64` (ARMv8), `arm` (ARMv6 and ARMv7)
 - macOS: `amd64` (Intel) and `arm64` (Apple Silicon)
 
-Multi-arch Docker images (`soulteary/apt-proxy` and `ghcr.io/soulteary/apt-proxy`):
+Multi-arch Docker images (`lj020326/apt-proxy` and `ghcr.io/lj020326/apt-proxy`):
 
 - `linux/amd64`
 - `linux/arm64`
@@ -54,10 +52,10 @@ Multi-arch Docker images (`soulteary/apt-proxy` and `ghcr.io/soulteary/apt-proxy
 
 ### Installation
 
-Download the latest release for your platform from the [releases page](https://github.com/soulteary/apt-proxy/releases), or use Docker:
+Download the latest release for your platform from the [releases page](https://github.com/lj020326/apt-proxy/releases), or use Docker:
 
 ```bash
-docker pull soulteary/apt-proxy
+docker pull lj020326/apt-proxy
 ```
 
 ### Running APT Proxy
@@ -135,7 +133,7 @@ sudo dnf makecache
 
 Inspect the repository files before applying the command if they have been
 customized by an image vendor. apt-proxy does not currently process CentOS
-metalink responses; that work is tracked in [issue #70](https://github.com/soulteary/apt-proxy/issues/70).
+metalink responses.
 The client-facing URL intentionally uses HTTP while apt-proxy fetches from the
 configured HTTPS upstream.
 
@@ -282,7 +280,7 @@ docker run -d \
   --name=apt-proxy \
   -p 3142:3142 \
   -v apt-proxy-cache:/app/.aptcache \
-  soulteary/apt-proxy
+  lj020326/apt-proxy
 ```
 
 The `-v apt-proxy-cache:/app/.aptcache` option persists the cache across container restarts.
@@ -930,7 +928,7 @@ apt-proxy/
 ### Building from Source
 
 ```bash
-git clone https://github.com/soulteary/apt-proxy.git
+git clone https://github.com/lj020326/apt-proxy.git
 cd apt-proxy
 go build -o apt-proxy ./cmd/apt-proxy
 ```
@@ -992,7 +990,7 @@ http_proxy=http://192.168.33.1:3142 \
 
 ## License
 
-This project is licensed under the [Apache License 2.0](https://github.com/soulteary/apt-proxy/blob/master/LICENSE).
+This project is licensed under the [Apache License 2.0](https://github.com/lj020326/apt-proxy/blob/master/LICENSE).
 
 ## Acknowledgments
 
@@ -1001,12 +999,13 @@ This project builds upon the excellent work of:
 - [lox/apt-proxy](https://github.com/lox/apt-proxy) - Original APT proxy implementation
 - [lox/httpcache](https://github.com/lox/httpcache) - HTTP caching library (MIT License)
 - [djherbis/stream](https://github.com/djherbis/stream) - Stream handling library (MIT License)
+- [soulteary/apt-cache](https://github.com/soulteary/apt-cache) - Forked APT proxy implementation
 - [soulteary/vfs-kit](https://github.com/soulteary/vfs-kit) - Virtual filesystem library (from rainycape/vfs, Mozilla Public License 2.0)
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/soulteary/apt-proxy/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/soulteary/apt-proxy/discussions)
+- **Issues**: [GitHub Issues](https://github.com/lj020326/apt-proxy/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/lj020326/apt-proxy/discussions)
 
 ---
 

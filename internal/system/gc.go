@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +13,7 @@
 
 package system
 
-// https://github.com/soulteary/hosts-blackhole/blob/main/pkg/system/gc.go
+// https://github.com/lj020326/hosts-blackhole/blob/main/pkg/system/gc.go
 
 import (
 	"runtime"

@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +33,7 @@ import (
 	lru "github.com/hashicorp/golang-lru/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	vfs "github.com/soulteary/vfs-kit"
+	vfs "github.com/lj020326/vfs-kit"
 )
 
 // Config configures the S3 backend. It mirrors the operator-facing
