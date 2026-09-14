@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package cli
 import (
 	"testing"
 
-	httpcache "github.com/soulteary/httpcache-kit/v2"
+	httpcache "github.com/lj020326/httpcache-kit/v2"
 
-	"github.com/soulteary/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/config"
 )
 
 // TestCacheLabelFromHeader exercises the small helper that normalises

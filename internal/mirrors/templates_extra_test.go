@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // TestBuildHTTPURL / TestBuildHTTPSURL / TestBuildListenAddress all
@@ -134,7 +134,7 @@ func TestGetFullMirrorURL(t *testing.T) {
 func TestMirrorsRegistryPrecedence(t *testing.T) {
 	reg := distro.NewBuiltinRegistry()
 	const overrideURL = "https://override.example.com/debian/"
-	const aliasName = "cn:custom"
+	const aliasName = "us:custom"
 	const aliasURL = "https://alias.example.com/debian/"
 	// Replace the built-in Debian entry with a single-mirror override so we
 	// can assert the registry path wins over the compile-time list.
@@ -163,12 +163,12 @@ func TestMirrorsRegistryPrecedence(t *testing.T) {
 	if got := GetMirrorURLByAliases(reg, distro.TypeDebian, aliasName); got != aliasURL {
 		t.Errorf("registry alias should win: got %q", got)
 	}
-	// "cn:" prefix stripping: alias stored as "raw" must be reachable via
-	// "cn:raw" lookup.
-	if got := GetMirrorURLByAliases(reg, distro.TypeDebian, "cn:raw"); got != "https://raw.example.com/debian/" {
-		t.Errorf("cn:-prefix stripping path failed: got %q", got)
+	// "us:" prefix stripping: alias stored as "raw" must be reachable via
+	// "us:raw" lookup.
+	if got := GetMirrorURLByAliases(reg, distro.TypeDebian, "us:raw"); got != "https://raw.example.com/debian/" {
+		t.Errorf("us:-prefix stripping path failed: got %q", got)
 	}
-	if got := GetMirrorURLByAliases(reg, distro.TypeDebian, "cn:nonexistent"); got != "" {
+	if got := GetMirrorURLByAliases(reg, distro.TypeDebian, "us:nonexistent"); got != "" {
 		t.Errorf("missing alias should return empty, got %q", got)
 	}
 

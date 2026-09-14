@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 func TestUbuntuPortsUsesRegistryMirrors(t *testing.T) {
@@ -99,36 +99,36 @@ func TestUbuntuConfiguredRegistryOverridesGeoDiscovery(t *testing.T) {
 }
 
 func TestGetUbuntuMirrorByAliases(t *testing.T) {
-	alias := GetMirrorURLByAliases(nil, distro.TypeUbuntu, "cn:tsinghua")
-	if !strings.Contains(alias, "mirrors.tuna.tsinghua.edu.cn/ubuntu/") {
+	alias := GetMirrorURLByAliases(nil, distro.TypeUbuntu, "us:archive")
+	if !strings.Contains(alias, "us.archive.ubuntu.com/ubuntu/") {
 		t.Fatal("Test Get Mirror By Custom Name Failed")
 	}
 
-	alias = GetMirrorURLByAliases(nil, distro.TypeUbuntu, "cn:not-found")
+	alias = GetMirrorURLByAliases(nil, distro.TypeUbuntu, "us:not-found")
 	if alias != "" {
 		t.Fatal("Test Get Mirror By Custom Name Failed")
 	}
 }
 
 func TestGetDebianMirrorByAliases(t *testing.T) {
-	alias := GetMirrorURLByAliases(nil, distro.TypeDebian, "cn:tsinghua")
-	if !strings.Contains(alias, "mirrors.tuna.tsinghua.edu.cn/debian/") {
+	alias := GetMirrorURLByAliases(nil, distro.TypeDebian, "us:ftp")
+	if !strings.Contains(alias, "ftp.us.debian.org/debian/") {
 		t.Fatal("Test Get Mirror By Custom Name Failed")
 	}
 
-	alias = GetMirrorURLByAliases(nil, distro.TypeDebian, "cn:not-found")
+	alias = GetMirrorURLByAliases(nil, distro.TypeDebian, "us:not-found")
 	if alias != "" {
 		t.Fatal("Test Get Mirror By Custom Name Failed")
 	}
 }
 
 func TestGetCentOSMirrorByAliases(t *testing.T) {
-	alias := GetMirrorURLByAliases(nil, distro.TypeCentOS, "cn:tsinghua")
-	if !strings.Contains(alias, "mirrors.tuna.tsinghua.edu.cn/centos/") {
+	alias := GetMirrorURLByAliases(nil, distro.TypeCentOS, "us:kernel")
+	if !strings.Contains(alias, "mirrors.kernel.org/centos/") {
 		t.Fatal("Test Get Mirror By Custom Name Failed")
 	}
 
-	alias = GetMirrorURLByAliases(nil, distro.TypeCentOS, "cn:not-found")
+	alias = GetMirrorURLByAliases(nil, distro.TypeCentOS, "us:not-found")
 	if alias != "" {
 		t.Fatal("Test Get Mirror By Custom Name Failed")
 	}

@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/state"
 )
 
 // ApplyToState writes the proxy mode and per-distro mirror URLs from

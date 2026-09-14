@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,15 +25,18 @@ package cli
 // covers the same invariants on real listening ports.
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"sync"
 	"testing"
+	"time"
 
-	"github.com/soulteary/apt-proxy/internal/api"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/gofiber/fiber/v3"
+	"github.com/lj020326/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // makeIsolationServer builds a Server that's safe to use from
@@ -139,14 +142,17 @@ func TestTwoServersAPIKeyIsolation(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			req, err := http.NewRequest(http.MethodGet, "/api/cache/stats", nil)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/api/cache/stats", nil)
 			if err != nil {
 				t.Fatalf("new request: %v", err)
 			}
 			req.Host = "localhost"
 			req.Header.Set("X-API-Key", tc.key)
 
-			resp, err := tc.srv.app.Test(req)
+			resp, err := tc.srv.app.Test(req, fiber.TestConfig{Timeout: 5 * time.Second})
 			if err != nil {
 				t.Fatalf("app.Test: %v", err)
 			}
@@ -173,32 +179,50 @@ func TestTwoServersCacheStatsIsolation(t *testing.T) {
 		t.Fatalf("expected per-Server cache dirs to differ; got %q", srvA.config.CacheDir)
 	}
 
+	testCfg := fiber.TestConfig{Timeout: 5 * time.Second}
+
 	// Purge A; B's stats endpoint should still respond independently.
-	purge, _ := http.NewRequest(http.MethodPost, "/api/cache/purge", nil)
+	ctxA, cancelA := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelA()
+
+	purge, _ := http.NewRequestWithContext(ctxA, http.MethodPost, "/api/cache/purge", nil)
 	purge.Host = "localhost"
 	purge.Header.Set("X-API-Key", "keyA")
-	resp, err := srvA.app.Test(purge)
+
+	respA, err := srvA.app.Test(purge, testCfg)
 	if err != nil {
 		t.Fatalf("purge A: %v", err)
 	}
-	_ = resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("purge A status = %d", resp.StatusCode)
+	if respA.Body != nil {
+		io.Copy(io.Discard, respA.Body)
+		respA.Body.Close()
+	}
+	if respA.StatusCode != http.StatusOK {
+		t.Fatalf("purge A status = %d", respA.StatusCode)
 	}
 
-	stats, _ := http.NewRequest(http.MethodGet, "/api/cache/stats", nil)
+	ctxB, cancelB := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelB()
+
+	stats, _ := http.NewRequestWithContext(ctxB, http.MethodGet, "/api/cache/stats", nil)
 	stats.Host = "localhost"
 	stats.Header.Set("X-API-Key", "keyB")
-	resp, err = srvB.app.Test(stats)
+
+	respB, err := srvB.app.Test(stats, testCfg)
 	if err != nil {
 		t.Fatalf("stats B: %v", err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("stats B status = %d", resp.StatusCode)
+	defer func() {
+		if respB.Body != nil {
+			io.Copy(io.Discard, respB.Body)
+			respB.Body.Close()
+		}
+	}()
+	if respB.StatusCode != http.StatusOK {
+		t.Fatalf("stats B status = %d", respB.StatusCode)
 	}
 	var dec api.CacheStatsResponse
-	if err := json.NewDecoder(resp.Body).Decode(&dec); err != nil {
+	if err := json.NewDecoder(respB.Body).Decode(&dec); err != nil {
 		t.Fatalf("decode B stats: %v", err)
 	}
 	// Items count is implementation-dependent for a fresh cache, but

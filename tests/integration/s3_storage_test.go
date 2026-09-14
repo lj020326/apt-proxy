@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,8 +39,8 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/soulteary/apt-proxy/internal/storage/s3vfs"
-	httpcache "github.com/soulteary/httpcache-kit/v2"
+	"github.com/lj020326/apt-proxy/internal/storage/s3vfs"
+	httpcache "github.com/lj020326/httpcache-kit/v2"
 )
 
 // s3TestEnv collects the S3-compatible service connection details. We check

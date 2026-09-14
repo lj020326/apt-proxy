@@ -1,10 +1,6 @@
 # APT Proxy
 
-[![Security Scan](https://github.com/soulteary/apt-proxy/actions/workflows/scan.yml/badge.svg)](https://github.com/soulteary/apt-proxy/actions/workflows/scan.yml) [![Release](https://github.com/soulteary/apt-proxy/actions/workflows/release.yaml/badge.svg)](https://github.com/soulteary/apt-proxy/actions/workflows/release.yaml) [![goreportcard](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=flat)](https://goreportcard.com/report/github.com/soulteary/apt-proxy) [![Docker Image](https://img.shields.io/docker/pulls/soulteary/apt-proxy.svg)](https://hub.docker.com/r/soulteary/apt-proxy)
-
-<p style="text-align: center;">
-  <a href="README.md">ENGLISH</a> | <a href="README_CN.md"  target="_blank">中文文档</a>
-</p>
+[![Security Scan](https://github.com/lj020326/apt-proxy/actions/workflows/scan.yml/badge.svg)](https://github.com/lj020326/apt-proxy/actions/workflows/scan.yml) [![Release](https://github.com/lj020326/apt-proxy/actions/workflows/release.yml/badge.svg)](https://github.com/lj020326/apt-proxy/actions/workflows/release.yml) [![goreportcard](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=flat)](https://goreportcard.com/report/github.com/lj020326/apt-proxy) [![Docker Image](https://img.shields.io/docker/pulls/lj020326/apt-proxy.svg)](https://hub.docker.com/r/lj020326/apt-proxy)
 
 <p align="center">
   <img src=".github/assets/apt-proxy-logo.png" alt="APT Proxy Logo" width="160"/>
@@ -20,9 +16,11 @@
 
 APT Proxy is a lightweight, high-performance caching proxy for package managers. It accelerates package downloads by caching frequently used packages locally, dramatically reducing download times for subsequent installations. Whether you're managing multiple servers, building Docker images, or working in bandwidth-constrained environments, APT Proxy helps you save time and bandwidth.
 
-<p align="center">
-  <img src=".github/assets/apt-proxy-webui-preview.jpg" alt="APT Proxy WebUI Preview" width="720"/>
-</p>
+## CI Status
+
+[![GitHub issues](https://img.shields.io/github/issues/lj020326/apt-proxy.svg?style=flat)](https://github.com/lj020326/apt-proxy/issues)
+[![GitHub stars](https://img.shields.io/github/stars/lj020326/apt-proxy.svg?style=flat)](https://github.com/lj020326/apt-proxy/stargazers)
+[![Docker Pulls - lj020326/apt-proxy](https://img.shields.io/docker/pulls/lj020326/apt-proxy.svg?style=flat)](https://hub.docker.com/repository/docker/lj020326/apt-proxy/)
 
 ### Key Features
 
@@ -37,12 +35,12 @@ APT Proxy is a lightweight, high-performance caching proxy for package managers.
 
 ## Supported Platforms
 
-Pre-built binaries (tar.gz on the [releases page](https://github.com/soulteary/apt-proxy/releases) and `.deb` / `.rpm` / `.apk` packages):
+Pre-built binaries (tar.gz on the [releases page](https://github.com/lj020326/apt-proxy/releases) and `.deb` / `.rpm` / `.apk` packages):
 
 - Linux: `amd64` (x86_64), `386` (i386), `arm64` (ARMv8), `arm` (ARMv6 and ARMv7)
 - macOS: `amd64` (Intel) and `arm64` (Apple Silicon)
 
-Multi-arch Docker images (`soulteary/apt-proxy` and `ghcr.io/soulteary/apt-proxy`):
+Multi-arch Docker images (`lj020326/apt-proxy` and `ghcr.io/lj020326/apt-proxy`):
 
 - `linux/amd64`
 - `linux/arm64`
@@ -54,10 +52,10 @@ Multi-arch Docker images (`soulteary/apt-proxy` and `ghcr.io/soulteary/apt-proxy
 
 ### Installation
 
-Download the latest release for your platform from the [releases page](https://github.com/soulteary/apt-proxy/releases), or use Docker:
+Download the latest release for your platform from the [releases page](https://github.com/lj020326/apt-proxy/releases), or use Docker:
 
 ```bash
-docker pull soulteary/apt-proxy
+docker pull lj020326/apt-proxy
 ```
 
 ### Running APT Proxy
@@ -135,7 +133,7 @@ sudo dnf makecache
 
 Inspect the repository files before applying the command if they have been
 customized by an image vendor. apt-proxy does not currently process CentOS
-metalink responses; that work is tracked in [issue #70](https://github.com/soulteary/apt-proxy/issues/70).
+metalink responses.
 The client-facing URL intentionally uses HTTP while apt-proxy fetches from the
 configured HTTPS upstream.
 
@@ -200,13 +198,13 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-        - "mirrors.ustc.edu.cn/ubuntu/"
+        - "archive.ubuntu.com/ubuntu/"
+        - "us.archive.ubuntu.com/ubuntu/"
       custom:
-        - "mirrors.163.com/ubuntu/"
+        - "mirrors.kernel.org/ubuntu/"
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-      ustc: "mirrors.ustc.edu.cn/ubuntu/"
+      us: "us.archive.ubuntu.com/ubuntu/"
+      kernel: "mirrors.kernel.org/ubuntu/"
 ```
 
 After editing the file, send **SIGHUP** or call **POST /api/mirrors/refresh** to hot-reload without restart.
@@ -220,7 +218,7 @@ After editing the file, send **SIGHUP** or call **POST /api/mirrors/refresh** to
 - `benchmark_url` — relative path probed during mirror benchmarking.
 - `geo_mirror_api` — optional URL returning a list of geo-located mirrors (Ubuntu-style `mirrors.txt`).
 - `cache_rules[]` — per-pattern cache directives. `cache_control` overrides response `Cache-Control` for matched paths (only applied to `200`/`404` responses); `rewrite: true` enables URL rewriting for that pattern.
-- `mirrors.official` / `mirrors.custom` — mirror host lists. Aliases of the form `cn:<name>` are auto-generated from each mirror's host (e.g. `mirrors.tuna.tsinghua.edu.cn` → `cn:tsinghua`).
+- `mirrors.official` / `mirrors.custom` — mirror host lists. Aliases of the form `us:<name>` are auto-generated from each mirror's host (e.g. `us.archive.ubuntu.com/ubuntu/` → `us:ubuntu`).
 - `aliases` — explicit name-to-mirror mapping that overrides/augments the auto-generated aliases.
 
 **Adding or editing a distribution:** Add or edit an entry under `distributions` with `id`, `name`, `type`, `url_pattern`, `benchmark_url`, `cache_rules`, `mirrors`, and `aliases`. The repo includes an example at `config/distributions.yaml` that you can extend.
@@ -234,14 +232,14 @@ By default, APT Proxy automatically benchmarks available mirrors and selects the
 ```bash
 # Cache multiple distributions
 ./apt-proxy \
-  --ubuntu=https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ \
-  --debian=https://mirrors.tuna.tsinghua.edu.cn/debian/
+  --ubuntu=mirrors.kernel.org/ubuntu/ \
+  --debian=ftp.us.debian.org/debian/
 
 # Cache only Ubuntu packages (reduces memory usage)
-./apt-proxy --mode=ubuntu --ubuntu=https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+./apt-proxy --mode=ubuntu --ubuntu=mirrors.kernel.org/ubuntu/
 
 # Cache only Debian packages
-./apt-proxy --mode=debian --debian=https://mirrors.tuna.tsinghua.edu.cn/debian/
+./apt-proxy --mode=debian --debian=deb.debian.org/debian/
 ```
 
 **Using Mirror Shortcuts:**
@@ -249,24 +247,15 @@ By default, APT Proxy automatically benchmarks available mirrors and selects the
 For convenience, you can use predefined shortcuts instead of full URLs:
 
 ```bash
-./apt-proxy --ubuntu=cn:tsinghua --debian=cn:163
+./apt-proxy --ubuntu=us:ubuntu --debian=us:stream
 ```
-
-**Available Shortcuts:**
-
-- `cn:tsinghua` - Tsinghua University Mirror
-- `cn:ustc` - USTC Mirror
-- `cn:163` - NetEase Mirror
-- `cn:aliyun` - Alibaba Cloud Mirror
-- `cn:huaweicloud` - Huawei Cloud Mirror
-- `cn:tencent` - Tencent Cloud Mirror
 
 Example output:
 
 ```
 2024/01/15 10:55:26 INF starting apt-proxy version=1.0.0
 2024/01/15 10:55:26 INF using specified debian mirror mirror=https://mirrors.163.com/debian/
-2024/01/15 10:55:26 INF using specified ubuntu mirror mirror=https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+2024/01/15 10:55:26 INF using specified ubuntu mirror mirror=mirrors.kernel.org/ubuntu/
 2024/01/15 10:55:26 INF proxy listening on 0.0.0.0:3142
 2024/01/15 10:55:26 INF server started successfully
 ```
@@ -282,7 +271,7 @@ docker run -d \
   --name=apt-proxy \
   -p 3142:3142 \
   -v apt-proxy-cache:/app/.aptcache \
-  soulteary/apt-proxy
+  lj020326/apt-proxy
 ```
 
 The `-v apt-proxy-cache:/app/.aptcache` option persists the cache across container restarts.
@@ -365,7 +354,7 @@ View all available options:
   --port=3142 \
   --cachedir=/var/cache/apt-proxy \
   --mode=ubuntu \
-  --ubuntu=cn:tsinghua \
+  --ubuntu=us:ubuntu \
   --cache-max-size=20 \
   --debug
 ```
@@ -485,10 +474,10 @@ storage:
     temp_dir: ""
 
 mirrors:
-  ubuntu: cn:tsinghua
+  ubuntu: us:ubuntu
   ubuntu_ports: ""
-  debian: cn:ustc
-  debian_security: https://mirrors.ustc.edu.cn/debian-security/
+  debian: us:stream
+  debian_security: https://deb.debian.org/debian-security/
   centos: ""
   alpine: ""
 
@@ -598,8 +587,6 @@ APT_PROXY_S3_USE_PATH_STYLE=true
 | Ceph RGW           | `rgw.example.com`                                    | varies    | `true`           | path-style is required                 |
 | Cloudflare R2      | `<account>.r2.cloudflarestorage.com`                 | `true`    | `false`          | Region must be `auto`                  |
 | Backblaze B2       | `s3.<region>.backblazeb2.com`                        | `true`    | `false`          | App keys with read+write to bucket     |
-| Aliyun OSS         | `oss-cn-hangzhou.aliyuncs.com`                       | `true`    | `false`          | RAM keys with `oss:GetObject/PutObject`|
-| Tencent COS        | `cos.ap-shanghai.myqcloud.com`                       | `true`    | `false`          | Use SecretId/SecretKey                 |
 | Garage / SeaweedFS | depends                                              | varies    | `true`           | Treat as MinIO-flavoured               |
 
 **Operational notes:**
@@ -930,7 +917,7 @@ apt-proxy/
 ### Building from Source
 
 ```bash
-git clone https://github.com/soulteary/apt-proxy.git
+git clone https://github.com/lj020326/apt-proxy.git
 cd apt-proxy
 go build -o apt-proxy ./cmd/apt-proxy
 ```
@@ -992,7 +979,7 @@ http_proxy=http://192.168.33.1:3142 \
 
 ## License
 
-This project is licensed under the [Apache License 2.0](https://github.com/soulteary/apt-proxy/blob/master/LICENSE).
+This project is licensed under the [Apache License 2.0](https://github.com/lj020326/apt-proxy/blob/master/LICENSE).
 
 ## Acknowledgments
 
@@ -1001,12 +988,13 @@ This project builds upon the excellent work of:
 - [lox/apt-proxy](https://github.com/lox/apt-proxy) - Original APT proxy implementation
 - [lox/httpcache](https://github.com/lox/httpcache) - HTTP caching library (MIT License)
 - [djherbis/stream](https://github.com/djherbis/stream) - Stream handling library (MIT License)
+- [soulteary/apt-cache](https://github.com/soulteary/apt-cache) - Forked APT proxy implementation
 - [soulteary/vfs-kit](https://github.com/soulteary/vfs-kit) - Virtual filesystem library (from rainycape/vfs, Mozilla Public License 2.0)
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/soulteary/apt-proxy/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/soulteary/apt-proxy/discussions)
+- **Issues**: [GitHub Issues](https://github.com/lj020326/apt-proxy/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/lj020326/apt-proxy/discussions)
 
 ---
 
