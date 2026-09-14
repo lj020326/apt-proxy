@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,9 +30,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/api"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // makeIsolationServer builds a Server that's safe to use from

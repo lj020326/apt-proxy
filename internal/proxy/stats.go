@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +22,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/soulteary/apt-proxy/internal/system"
+	"github.com/lj020326/apt-proxy/internal/system"
 	"golang.org/x/sync/singleflight"
 )
 

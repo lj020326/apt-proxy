@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +21,8 @@ import (
 	"testing"
 	"time"
 
-	httpcache "github.com/soulteary/httpcache-kit/v2"
-	logger "github.com/soulteary/logger-kit/v2"
+	httpcache "github.com/lj020326/httpcache-kit/v2"
+	logger "github.com/lj020326/logger-kit/v2"
 )
 
 // fakeCache is a lightweight in-memory ExtendedCache stub. It implements only

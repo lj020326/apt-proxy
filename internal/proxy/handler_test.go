@@ -1,4 +1,3 @@
-// Copyright 2022 Su Yang
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +19,10 @@ import (
 	"os"
 	"testing"
 
-	logger "github.com/soulteary/logger-kit/v2"
+	logger "github.com/lj020326/logger-kit/v2"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/state"
 )
 
 // newTestPackageStruct constructs a fully-wired *PackageStruct backed by

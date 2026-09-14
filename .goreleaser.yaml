@@ -91,9 +91,9 @@ changelog:
 nfpms:
   - id: packages
     package_name: apt-proxy
-    vendor: soulteary
-    homepage: https://github.com/soulteary/apt-proxy
-    maintainer: soulteary <soulteary@gmail.com>
+    vendor: lj020326
+    homepage: https://github.com/lj020326/apt-proxy
+    maintainer: lj020326 <lj020326@gmail.com>
     description: Caching HTTP proxy for APT/YUM/Alpine package mirrors.
     license: Apache-2.0
     formats:
@@ -109,10 +109,10 @@ nfpms:
 
 dockers:
   - image_templates:
-      - "soulteary/apt-proxy:linux-amd64-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-amd64"
-      - "ghcr.io/soulteary/apt-proxy:linux-amd64-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-amd64"
+      - "lj020326/apt-proxy:linux-amd64-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-amd64"
+      - "ghcr.io/lj020326/apt-proxy:linux-amd64-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-amd64"
     dockerfile: docker/Dockerfile.gorelease
     use: buildx
     goarch: amd64
@@ -121,18 +121,18 @@ dockers:
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
       - "--label=org.opencontainers.image.description={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.url=https://github.com/soulteary/apt-proxy"
-      - "--label=org.opencontainers.image.source=https://github.com/soulteary/apt-proxy"
+      - "--label=org.opencontainers.image.url=https://github.com/lj020326/apt-proxy"
+      - "--label=org.opencontainers.image.source=https://github.com/lj020326/apt-proxy"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.licenses=Apache-2.0"
 
   - image_templates:
-      - "soulteary/apt-proxy:linux-arm64-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-arm64"
-      - "ghcr.io/soulteary/apt-proxy:linux-arm64-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-arm64"
+      - "lj020326/apt-proxy:linux-arm64-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-arm64"
+      - "ghcr.io/lj020326/apt-proxy:linux-arm64-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-arm64"
     dockerfile: docker/Dockerfile.gorelease
     use: buildx
     goos: linux
@@ -143,18 +143,18 @@ dockers:
       - "--platform=linux/arm64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
       - "--label=org.opencontainers.image.description={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.url=https://github.com/soulteary/apt-proxy"
-      - "--label=org.opencontainers.image.source=https://github.com/soulteary/apt-proxy"
+      - "--label=org.opencontainers.image.url=https://github.com/lj020326/apt-proxy"
+      - "--label=org.opencontainers.image.source=https://github.com/lj020326/apt-proxy"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.licenses=Apache-2.0"
 
   - image_templates:
-      - "soulteary/apt-proxy:linux-armv7-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-armv7"
-      - "ghcr.io/soulteary/apt-proxy:linux-armv7-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-armv7"
+      - "lj020326/apt-proxy:linux-armv7-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-armv7"
+      - "ghcr.io/lj020326/apt-proxy:linux-armv7-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-armv7"
     dockerfile: docker/Dockerfile.gorelease
     use: buildx
     goos: linux
@@ -165,41 +165,41 @@ dockers:
       - "--platform=linux/arm/v7"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
       - "--label=org.opencontainers.image.description={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.url=https://github.com/soulteary/apt-proxy"
-      - "--label=org.opencontainers.image.source=https://github.com/soulteary/apt-proxy"
+      - "--label=org.opencontainers.image.url=https://github.com/lj020326/apt-proxy"
+      - "--label=org.opencontainers.image.source=https://github.com/lj020326/apt-proxy"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - "--label=org.opencontainers.image.licenses=Apache-2.0"
 
 docker_manifests:
-  - name_template: "soulteary/apt-proxy:{{ .Tag }}"
+  - name_template: "lj020326/apt-proxy:{{ .Tag }}"
     image_templates:
-      - "soulteary/apt-proxy:linux-amd64-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-arm64-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-armv7-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-amd64-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-arm64-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-armv7-{{ .Tag }}"
 
-  - name_template: "soulteary/apt-proxy:latest"
+  - name_template: "lj020326/apt-proxy:latest"
     image_templates:
-      - "soulteary/apt-proxy:linux-amd64-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-arm64-{{ .Tag }}"
-      - "soulteary/apt-proxy:linux-armv7-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-amd64-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-arm64-{{ .Tag }}"
+      - "lj020326/apt-proxy:linux-armv7-{{ .Tag }}"
 
-  - name_template: "ghcr.io/soulteary/apt-proxy:{{ .Tag }}"
+  - name_template: "ghcr.io/lj020326/apt-proxy:{{ .Tag }}"
     image_templates:
-      - "ghcr.io/soulteary/apt-proxy:linux-amd64-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-arm64-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-armv7-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-amd64-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-arm64-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-armv7-{{ .Tag }}"
 
-  - name_template: "ghcr.io/soulteary/apt-proxy:latest"
+  - name_template: "ghcr.io/lj020326/apt-proxy:latest"
     image_templates:
-      - "ghcr.io/soulteary/apt-proxy:linux-amd64-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-arm64-{{ .Tag }}"
-      - "ghcr.io/soulteary/apt-proxy:linux-armv7-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-amd64-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-arm64-{{ .Tag }}"
+      - "ghcr.io/lj020326/apt-proxy:linux-armv7-{{ .Tag }}"
 
 release:
   github:
-    owner: soulteary
+    owner: lj020326
     name: apt-proxy
   draft: false
   prerelease: auto
