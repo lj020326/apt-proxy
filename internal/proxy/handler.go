@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	logger "github.com/soulteary/logger-kit/v2"
-	tracing "github.com/soulteary/tracing-kit"
+	logger "github.com/lj020326/logger-kit/v2"
+	tracing "github.com/lj020326/tracing-kit"
 
-	"github.com/soulteary/apt-proxy/internal/benchmarks"
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/benchmarks"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/state"
 )
 
 // Default transport timeouts and limits for upstream requests.

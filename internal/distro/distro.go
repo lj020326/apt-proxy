@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,8 +99,16 @@ func GenerateAliasFromURL(url string) string {
 	pureHost := urlSchemeAndPathRegex.ReplaceAllString(url, "")
 	tldRemoved := tldRemovalRegex.ReplaceAllString(pureHost, "")
 	group := strings.Split(tldRemoved, ".")
+
 	alias := group[len(group)-1]
-	return "cn:" + alias
+	if len(group) > 1 && (alias == "ubuntu" || alias == "debian" || alias == "centos" || alias == "alpine" || alias == "us") {
+		alias = group[len(group)-2]
+		if len(group) > 2 && alias == "us" {
+			alias = group[len(group)-3]
+		}
+	}
+
+	return "us:" + alias
 }
 
 // GenerateBuiltinMirrorItem creates a URLWithAlias from a URL.
@@ -130,7 +138,7 @@ func GenerateBuildInMirorItem(url string, official bool) URLWithAlias {
 
 var (
 	urlSchemeAndPathRegex = regexp.MustCompile(`^https?://|\/.*`)
-	tldRemovalRegex       = regexp.MustCompile(`\.edu\.cn$|\.cn$|\.com$|\.net$|\.net\.cn$|\.org$|\.org\.cn$`)
+	tldRemovalRegex       = regexp.MustCompile(`\.edu\.us$|\.net\.us$|\.org\.us$|\.edu$|\.us$|\.com$|\.net$|\.org$`)
 )
 
 // GenerateBuiltinList generates a list of mirror URLs with aliases.

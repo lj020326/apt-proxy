@@ -64,7 +64,5 @@ Replace the `apt-proxy` service's environment block with your provider:
 | AWS S3           | `s3.us-east-1.amazonaws.com`             | `true`    | `false`          |
 | Cloudflare R2    | `<account>.r2.cloudflarestorage.com`     | `true`    | `false`          |
 | Backblaze B2     | `s3.us-west-002.backblazeb2.com`         | `true`    | `false`          |
-| Aliyun OSS       | `oss-cn-hangzhou.aliyuncs.com`           | `true`    | `false`          |
-| Tencent COS      | `cos.ap-shanghai.myqcloud.com`           | `true`    | `false`          |
 | Ceph RGW         | `rgw.example.com`                        | depends   | `true`           |
 | MinIO (legacy)   | `minio:9000`                             | `false`   | `true`           |

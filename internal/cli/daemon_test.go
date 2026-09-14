@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/soulteary/apt-proxy/internal/api"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // withTestMirrors returns a copy of cfg with mock mirror URLs filled in

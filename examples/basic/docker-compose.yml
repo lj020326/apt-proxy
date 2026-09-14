@@ -2,9 +2,9 @@ name: apt-cache
 
 services:
   apt-proxy:
-    image: soulteary/apt-proxy
+    image: lj020326/apt-proxy
     restart: always
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=Etc/UTC
     ports:
       - "3142:3142"
