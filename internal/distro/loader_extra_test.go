@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ func TestLoaderLoadValid(t *testing.T) {
       official:
         - "https://foo.example.com/"
     aliases:
-      tuna: "https://mirrors.tuna.tsinghua.edu.cn/foo/"
+      edu: "https://mirrors.example.edu/foo/"
 `
 	path := writeTempYAML(t, yaml)
 	loader := NewLoader(path)

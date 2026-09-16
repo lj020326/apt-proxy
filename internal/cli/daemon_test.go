@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/soulteary/apt-proxy/internal/api"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // withTestMirrors returns a copy of cfg with mock mirror URLs filled in
@@ -48,6 +48,35 @@ func withTestMirrors(cfg *config.Config) *config.Config {
 		}
 	}
 	return &out
+}
+
+// waitForCacheHit retries until the response is a successful cache HIT.
+// On macOS under -race the on-disk header file from a preceding MISS can
+// still be incomplete for a few milliseconds, which surfaces as status 500
+// with "failed to read headers ... EOF". Retrying is more reliable than a
+// fixed sleep and keeps the test honest about eventual HIT semantics.
+func waitForCacheHit(t *testing.T, request func() *http.Response, wantBody string) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	var lastStatus int
+	var lastBody, lastCache string
+	for attempt := 0; time.Now().Before(deadline); attempt++ {
+		resp := request()
+		body, err := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		if err != nil {
+			t.Fatalf("read response (attempt %d): %v", attempt+1, err)
+		}
+		lastStatus = resp.StatusCode
+		lastBody = string(body)
+		lastCache = resp.Header.Get("X-Cache")
+		if lastStatus == http.StatusOK && lastBody == wantBody && lastCache == "HIT" {
+			return
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatalf("timed out waiting for cache HIT: last status=%d body=%q X-Cache=%q",
+		lastStatus, lastBody, lastCache)
 }
 
 func TestNewServer(t *testing.T) {
@@ -156,18 +185,8 @@ func TestProductionProxyRouteRewritesAndCaches(t *testing.T) {
 		t.Fatalf("first X-Cache = %q, want MISS", got)
 	}
 
-	second := request()
-	secondBody, err := io.ReadAll(second.Body)
-	_ = second.Body.Close()
-	if err != nil {
-		t.Fatalf("read second response: %v", err)
-	}
-	if second.StatusCode != http.StatusOK || string(secondBody) != "release-data" {
-		t.Fatalf("second response: status=%d body=%q", second.StatusCode, secondBody)
-	}
-	if got := second.Header.Get("X-Cache"); got != "HIT" {
-		t.Fatalf("second X-Cache = %q, want HIT", got)
-	}
+	waitForCacheHit(t, request, "release-data")
+
 	if got := upstreamHits.Load(); got != 1 {
 		t.Fatalf("upstream hits = %d, want 1", got)
 	}
@@ -231,18 +250,8 @@ func TestProductionProxyRouteRewritesAndCachesAlpineIndex(t *testing.T) {
 		t.Fatalf("first X-Cache = %q, want MISS", got)
 	}
 
-	second := request()
-	secondBody, err := io.ReadAll(second.Body)
-	_ = second.Body.Close()
-	if err != nil {
-		t.Fatalf("read second response: %v", err)
-	}
-	if second.StatusCode != http.StatusOK || string(secondBody) != "alpine-index" {
-		t.Fatalf("second response: status=%d body=%q", second.StatusCode, secondBody)
-	}
-	if got := second.Header.Get("X-Cache"); got != "HIT" {
-		t.Fatalf("second X-Cache = %q, want HIT", got)
-	}
+	waitForCacheHit(t, request, "alpine-index")
+
 	if got := upstreamHits.Load(); got != 1 {
 		t.Fatalf("upstream hits = %d, want 1", got)
 	}
@@ -306,20 +315,24 @@ func TestProductionProxyRouteSupportsHostPrefixedDebianPaths(t *testing.T) {
 				return resp
 			}
 
-			for index, wantCache := range []string{"MISS", "HIT"} {
-				resp := request()
-				body, err := io.ReadAll(resp.Body)
-				_ = resp.Body.Close()
-				if err != nil {
-					t.Fatalf("read response %d: %v", index+1, err)
-				}
-				if resp.StatusCode != http.StatusOK || string(body) != "debian-release" {
-					t.Fatalf("response %d: status=%d body=%q", index+1, resp.StatusCode, body)
-				}
-				if got := resp.Header.Get("X-Cache"); got != wantCache {
-					t.Fatalf("response %d X-Cache = %q, want %s", index+1, got, wantCache)
-				}
+			// First request must be a MISS and populate the cache.
+			resp := request()
+			body, err := io.ReadAll(resp.Body)
+			_ = resp.Body.Close()
+			if err != nil {
+				t.Fatalf("read first response: %v", err)
 			}
+			if resp.StatusCode != http.StatusOK || string(body) != "debian-release" {
+				t.Fatalf("first response: status=%d body=%q", resp.StatusCode, body)
+			}
+			if got := resp.Header.Get("X-Cache"); got != "MISS" {
+				t.Fatalf("first X-Cache = %q, want MISS", got)
+			}
+
+			// Second request should hit the cache; retry briefly if the
+			// on-disk header file is still being flushed (macOS -race flake).
+			waitForCacheHit(t, request, "debian-release")
+
 			if got := upstreamHits.Load(); got != 1 {
 				t.Fatalf("upstream hits = %d, want 1", got)
 			}

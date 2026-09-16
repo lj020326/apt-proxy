@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,17 +20,21 @@ var AlpineHostPattern = regexp.MustCompile(`/alpine/(.+)$`)
 
 const AlpineBenchmarkURL = "MIRRORS.txt"
 
-// https://mirrors.alpinelinux.org/ 2022.11.19
-// Sites that contain protocol headers, restrict access to resources using that protocol
+// Official Alpine Linux primary and US regional mirror endpoints.
+// Sites that contain protocol headers restrict access to resources using that protocol.
 var AlpineOfficialMirrors = []string{
-	"mirrors.tuna.tsinghua.edu.cn/alpine/",
-	"mirrors.ustc.edu.cn/alpine/",
-	"mirrors.nju.edu.cn/alpine/",
-	"mirrors.sjtug.sjtu.edu.cn/alpine/",
-	"mirrors.aliyun.com/alpine/",
+	"dl-cdn.alpinelinux.org/alpine/",
+	"uk.alpinelinux.org/alpine/",
+	"mirrors.kernel.org/alpine/",
+	"mirror.us.leaseweb.net/alpine/",
+	"mirror.clarkson.edu/alpine/",
+	"mirrors.rit.edu/alpine/",
+	"mirrors.ocf.berkeley.edu/alpine/",
 }
 
-var AlpineCustomMirrors = []string{}
+var AlpineCustomMirrors = []string{
+	"mirror.steadfast.net/alpine/",
+}
 
 var BuiltinAlpineMirrors = GenerateBuildInList(AlpineOfficialMirrors, AlpineCustomMirrors)
 

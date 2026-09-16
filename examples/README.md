@@ -3,17 +3,17 @@
 Each subdirectory is a self-contained example. Pick the one closest to your
 target deployment and read its `README.md`.
 
-| Example | Runnable                | What it shows                                                                 |
-| ------- | ----------------------- | ----------------------------------------------------------------------------- |
-| [`basic/`](basic/)                     | `docker compose up -d` | Smallest possible deployment; defaults only, in-container cache.            |
-| [`specify-mirrors/`](specify-mirrors/) | `docker compose up -d` | Same as `basic/` but pins upstream Ubuntu/Debian mirrors via CLI flags.     |
+| Example                                | Runnable               | What it shows                                                                 |
+|----------------------------------------|------------------------|-------------------------------------------------------------------------------|
+| [`basic/`](basic/)                     | `docker compose up -d` | Smallest possible deployment; defaults only, in-container cache.              |
+| [`specify-mirrors/`](specify-mirrors/) | `docker compose up -d` | Same as `basic/` but pins upstream Ubuntu/Debian mirrors via CLI flags.       |
 | [`s3-otterio/`](s3-otterio/)           | `docker compose up -d` | Production-shaped: cache offloaded to an S3-compatible bucket (OtterIO here). |
-| [`config-template/`](config-template/) | not directly runnable  | Fully-commented `apt-proxy.yaml` reference. Copy & trim to your needs.      |
+| [`config-template/`](config-template/) | not directly runnable  | Fully-commented `apt-proxy.yaml` reference. Copy & trim to your needs.        |
 
 ## Picking an example
 
 - Just kicking the tires on a laptop? Start with [`basic/`](basic/).
-- Want to pin a fast mirror (e.g. Tsinghua/USTC)? See [`specify-mirrors/`](specify-mirrors/).
+- Want to pin a fast mirror (e.g. MIT/Leaseweb)? See [`specify-mirrors/`](specify-mirrors/).
 - Multi-host / shared cache / object storage? See [`s3-otterio/`](s3-otterio/) — it
   works against AWS S3, R2, B2, OSS, COS, Ceph RGW (and MinIO) too; only env vars change.
 - Need to know what every config knob does? Read
