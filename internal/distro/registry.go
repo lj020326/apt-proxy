@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,15 +32,21 @@ type Registry struct {
 	mu            sync.RWMutex
 	distributions map[string]*RegisteredDistribution
 	types         map[int]string // type -> id mapping
+	configPath    string         // distributions.yaml in effect, "" for built-ins only
 }
 
 // RegisteredDistribution represents a registered distribution with its configuration.
 type RegisteredDistribution struct {
-	ID           string
-	Name         string
-	Type         int
-	Builtin      bool
-	URLPattern   *regexp.Regexp
+	ID         string
+	Name       string
+	Type       int
+	Builtin    bool
+	URLPattern *regexp.Regexp
+	// HostPattern optionally matches the request's Host header for archives
+	// served from the host root (no distinguishing path prefix, so
+	// URLPattern alone can never match). When it matches, the whole request
+	// path is treated as the mirror-relative suffix.
+	HostPattern  *regexp.Regexp
 	BenchmarkURL string
 	GeoMirrorAPI string
 	CacheRules   []Rule
@@ -95,6 +101,14 @@ func (r *Registry) Register(dist *RegisteredDistribution) error {
 	}
 
 	return nil
+}
+
+// ConfigPath returns the distributions.yaml the registry last loaded, or ""
+// when it is running on the built-in defaults alone.
+func (r *Registry) ConfigPath() string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.configPath
 }
 
 // GetByID returns a distribution by its ID.
@@ -180,6 +194,7 @@ func (r *Registry) Clear() {
 
 	r.distributions = make(map[string]*RegisteredDistribution)
 	r.types = make(map[int]string)
+	r.configPath = ""
 }
 
 // RegisterBuiltins seeds reg with the compile-time built-in distributions.
@@ -218,6 +233,7 @@ func RegisterBuiltins(reg *Registry) {
 			Type:         TypeDebian,
 			Builtin:      true,
 			URLPattern:   DebianHostPattern,
+			HostPattern:  DebianSecurityHostPattern,
 			BenchmarkURL: DebianBenchmarkURL,
 			CacheRules:   DebianDefaultCacheRules,
 			Mirrors:      BuiltinDebianMirrors,
@@ -257,6 +273,20 @@ func (r *Registry) LoadFromConfig(config *DistributionConfig) error {
 		return fmt.Errorf("failed to compile URL pattern: %w", err)
 	}
 
+	// An omitted host_pattern inherits the built-in matcher for this type, so
+	// a pre-existing distributions.yaml (including the one shipped in this
+	// repo, whose debian entry predates the field) does not silently disable
+	// Host routing for that distribution.
+	var hostPattern *regexp.Regexp
+	if config.HostPattern != "" {
+		hostPattern, err = regexp.Compile(config.HostPattern)
+		if err != nil {
+			return fmt.Errorf("failed to compile host pattern: %w", err)
+		}
+	} else {
+		hostPattern = BuiltinHostPattern(config.Type)
+	}
+
 	cacheRules := make([]Rule, 0, len(config.CacheRules))
 	for _, ruleConfig := range config.CacheRules {
 		pattern, err := regexp.Compile(ruleConfig.Pattern)
@@ -285,6 +315,7 @@ func (r *Registry) LoadFromConfig(config *DistributionConfig) error {
 		Name:         config.Name,
 		Type:         config.Type,
 		URLPattern:   urlPattern,
+		HostPattern:  hostPattern,
 		BenchmarkURL: config.BenchmarkURL,
 		GeoMirrorAPI: config.GeoMirrorAPI,
 		CacheRules:   cacheRules,
@@ -330,6 +361,14 @@ func (r *Registry) Reload(configPath string) error {
 
 	r.Clear()
 	RegisterBuiltins(r)
+
+	// Record the file that was actually used. An empty path means Load
+	// walked its search list, so only it knows what it settled on, and
+	// "which file is in effect?" is the first thing an operator asks when a
+	// distribution does not show up.
+	r.mu.Lock()
+	r.configPath = loader.configPath
+	r.mu.Unlock()
 
 	if cfg == nil {
 		return nil

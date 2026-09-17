@@ -1,10 +1,6 @@
 # APT Proxy
 
-[![Security Scan](https://github.com/soulteary/apt-proxy/actions/workflows/scan.yml/badge.svg)](https://github.com/soulteary/apt-proxy/actions/workflows/scan.yml) [![Release](https://github.com/soulteary/apt-proxy/actions/workflows/release.yaml/badge.svg)](https://github.com/soulteary/apt-proxy/actions/workflows/release.yaml) [![goreportcard](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=flat)](https://goreportcard.com/report/github.com/soulteary/apt-proxy) [![Docker Image](https://img.shields.io/docker/pulls/soulteary/apt-proxy.svg)](https://hub.docker.com/r/soulteary/apt-proxy)
-
-<p style="text-align: center;">
-  <a href="README.md">ENGLISH</a> | <a href="README_CN.md"  target="_blank">中文文档</a>
-</p>
+[![Security Scan](https://github.com/lj020326/apt-proxy/actions/workflows/scan.yml/badge.svg)](https://github.com/lj020326/apt-proxy/actions/workflows/scan.yml) [![Release](https://github.com/lj020326/apt-proxy/actions/workflows/release.yml/badge.svg)](https://github.com/lj020326/apt-proxy/actions/workflows/release.yml) [![goreportcard](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=flat)](https://goreportcard.com/report/github.com/lj020326/apt-proxy) [![Docker Image](https://img.shields.io/docker/pulls/lj020326/apt-proxy.svg)](https://hub.docker.com/r/lj020326/apt-proxy)
 
 <p align="center">
   <img src=".github/assets/apt-proxy-logo.png" alt="APT Proxy Logo" width="160"/>
@@ -20,29 +16,35 @@
 
 APT Proxy is a lightweight, high-performance caching proxy for package managers. It accelerates package downloads by caching frequently used packages locally, dramatically reducing download times for subsequent installations. Whether you're managing multiple servers, building Docker images, or working in bandwidth-constrained environments, APT Proxy helps you save time and bandwidth.
 
-<p align="center">
-  <img src=".github/assets/apt-proxy-webui-preview.jpg" alt="APT Proxy WebUI Preview" width="720"/>
-</p>
+## CI Status
+
+[![GitHub issues](https://img.shields.io/github/issues/lj020326/apt-proxy.svg?style=flat)](https://github.com/lj020326/apt-proxy/issues)
+[![GitHub stars](https://img.shields.io/github/stars/lj020326/apt-proxy.svg?style=flat)](https://github.com/lj020326/apt-proxy/stargazers)
+[![Docker Pulls - lj020326/apt-proxy](https://img.shields.io/docker/pulls/lj020326/apt-proxy.svg?style=flat)](https://hub.docker.com/repository/docker/lj020326/apt-proxy/)
 
 ### Key Features
 
 - **Multi-Distribution Support**: Works with APT (Ubuntu/Debian), YUM (CentOS), and APK (Alpine Linux)
 - **Lightweight**: Binary size is just less 10MB - minimal resource footprint
 - **Smart Mirror Selection**: Automatically benchmarks and selects the fastest mirror
+- **Upstream Proxy**: Reaches mirror sites through an existing `HTTP_PROXY` / `HTTPS_PROXY` forward proxy (SOCKS5 included) when the host has no direct route out; mirror benchmarking takes the same path, so the elected mirror is one that is actually reachable
+- **HTTPS / TLS caching**: Supports apt-cacher-ng's `HTTPS///` rewrite marker so HTTPS-only repositories can be fetched by the proxy over TLS and cached in the clear; plain `CONNECT` tunneling is also available when end-to-end encryption is required (no cache in that mode)
 - **Docker-Ready**: Seamlessly integrates with Docker containers and build processes
-- **apt-cacher-ng Friendly**: Compatible with most [apt-cacher-ng](https://www.unix-ag.uni-kl.de/~bloch/acng/) usage patterns (note: advanced features such as the Import/Maint web UI, full `acng.conf` syntax, and cross-distro deb deduplication are not implemented)
+- **apt-cacher-ng Friendly**: Compatible with most [apt-cacher-ng](https://www.unix-ag.uni-kl.de/~bloch/acng/) usage patterns, including the `HTTPS///` rewrite marker for TLS upstreams — so existing `sources.list` entries migrate unchanged (note: advanced features such as the Import/Maint web UI, full `acng.conf` syntax, and cross-distro deb deduplication are not implemented)
+- **Third-Party Archives**: Fetches and caches origins you name in a `passthrough` allowlist (a PPA, a vendor repo, an internal archive) — off by default, because apt-proxy is not an open forward proxy
+- **Host-Root Archives**: Routes by the request `Host` when an archive lives at a domain root with no path prefix to match (`security.debian.org`, `apt.armbian.com`), configurable per distribution with `host_pattern`
 - **Zero Configuration**: Works out of the box with sensible defaults
 - **Observability**: Built-in health checks, Prometheus metrics, structured logging, and optional OpenTelemetry tracing
 - **Cache Management**: REST API for cache statistics, purging, and cleanup, with API-key authentication and per-IP rate limiting
 
 ## Supported Platforms
 
-Pre-built binaries (tar.gz on the [releases page](https://github.com/soulteary/apt-proxy/releases) and `.deb` / `.rpm` / `.apk` packages):
+Pre-built binaries (tar.gz on the [releases page](https://github.com/lj020326/apt-proxy/releases) and `.deb` / `.rpm` / `.apk` packages):
 
 - Linux: `amd64` (x86_64), `386` (i386), `arm64` (ARMv8), `arm` (ARMv6 and ARMv7)
 - macOS: `amd64` (Intel) and `arm64` (Apple Silicon)
 
-Multi-arch Docker images (`soulteary/apt-proxy` and `ghcr.io/soulteary/apt-proxy`):
+Multi-arch Docker images (`lj020326/apt-proxy` and `ghcr.io/lj020326/apt-proxy`):
 
 - `linux/amd64`
 - `linux/arm64`
@@ -54,10 +56,10 @@ Multi-arch Docker images (`soulteary/apt-proxy` and `ghcr.io/soulteary/apt-proxy
 
 ### Installation
 
-Download the latest release for your platform from the [releases page](https://github.com/soulteary/apt-proxy/releases), or use Docker:
+Download the latest release for your platform from the [releases page](https://github.com/lj020326/apt-proxy/releases), or use Docker:
 
 ```bash
-docker pull soulteary/apt-proxy
+docker pull lj020326/apt-proxy
 ```
 
 ### Running APT Proxy
@@ -135,7 +137,7 @@ sudo dnf makecache
 
 Inspect the repository files before applying the command if they have been
 customized by an image vendor. apt-proxy does not currently process CentOS
-metalink responses; that work is tracked in [issue #70](https://github.com/soulteary/apt-proxy/issues/70).
+metalink responses.
 The client-facing URL intentionally uses HTTP while apt-proxy fetches from the
 configured HTTPS upstream.
 
@@ -152,6 +154,69 @@ cat /etc/apk/repositories | \
 # Verify configuration
 apk update
 ```
+
+## HTTPS and TLS
+
+apt-proxy can cache content from TLS (HTTPS) origins in two ways. Both rely on
+the proxy owning the TLS session to the upstream host so the response body is
+available in the clear for storage.
+
+### 1. Configured HTTPS mirrors (recommended for known distributions)
+
+Point a distribution's mirror at an `https://` URL. Clients still talk HTTP to
+apt-proxy; the proxy fetches the upstream over TLS and caches the response:
+
+```bash
+./apt-proxy \
+  --ubuntu=https://mirrors.kernel.org/ubuntu/ \
+  --debian=https://deb.debian.org/debian/
+```
+
+```text
+# Client sources.list (HTTP to the proxy)
+deb http://apt-proxy.example:3142/ubuntu jammy main
+```
+
+### 2. apt-cacher-ng `HTTPS///` rewrite marker (HTTPS-only / third-party repos)
+
+When a repository is published only over HTTPS (or you prefer not to register it
+as a full distribution), use apt-cacher-ng's `HTTPS///` marker. The client
+request is plain HTTP; apt-proxy strips the marker, fetches `https://…`, and
+caches the result:
+
+```text
+# Authority form (Host is the literal "HTTPS")
+deb http://HTTPS///download.docker.com/linux/ubuntu jammy stable
+
+# Path form through the proxy host
+deb http://apt-proxy.example:3142/HTTPS///download.docker.com/linux/ubuntu jammy stable
+```
+
+| Client writes | Proxy fetches | Cached? |
+|---------------|---------------|---------|
+| `http://HTTPS///<host>/…` | `https://<host>/…` | Yes |
+| `http://proxy:3142/HTTPS///<host>/…` | `https://<host>/…` | Yes |
+| Configured mirror `https://…` + HTTP path | that mirror over TLS | Yes |
+| `CONNECT <host>:443` (see below) | end-to-end tunnel | **No** |
+
+Paths that match a registered distribution keep that distribution's cache rules
+(indexes short-lived, package blobs long-lived). Unknown hosts still proxy and
+cache with conservative defaults (indexes ~5 minutes, immutable packages ~1 year).
+
+### 3. CONNECT tunneling (no cache)
+
+For clients that must keep end-to-end TLS (for example `Acquire::https::Proxy`),
+apt-proxy accepts HTTP `CONNECT` and opens a bidirectional tunnel. Traffic is
+encrypted between client and origin, so the proxy cannot inspect or cache it:
+
+```text
+# /etc/apt/apt.conf.d/00proxy
+Acquire::http::Proxy "http://apt-proxy.example:3142";
+Acquire::https::Proxy "http://apt-proxy.example:3142";
+```
+
+Use `HTTPS///` or an `https://` mirror configuration when you want caching;
+use `CONNECT` only when tunneling is required.
 
 ## Advanced Configuration
 
@@ -171,18 +236,46 @@ the service into an unrestricted origin proxy. Host-prefixed
 `/security.debian.org/debian-security/...` paths use the configured dedicated
 Debian Security mirror. Query parameters are preserved, and paths that do not
 match a configured distribution return `404`.
+
+The prefix has to be a single host: either nothing at all (`/debian/dists/...`)
+or exactly one host-shaped segment in front of the distribution segment
+(`/ftp.uni-kl.de/debian/dists/...`, optionally with a `:port`, an IP literal, or
+`localhost`). Anything deeper returns `404`, because it is a third-party archive
+rather than a mirror of the distribution:
+
+```text
+/ppa.launchpad.net/deadsnakes/ppa/ubuntu/dists/jammy/InRelease   404
+/download.docker.com/linux/ubuntu/dists/jammy/InRelease          404
+```
+
+Such an archive is **not** a copy of the distribution it is nested under, so
+answering it from the distribution's mirror would hand the client a different
+repository's content. To cache those archives, either register them as their own
+distribution (see below) or use the [`HTTPS///` marker](#2-apt-cacher-ng-https-rewrite-marker-https-only--third-party-repos).
+
 ### Distributions and Mirrors Config (distributions.yaml)
 
 You can maintain distributions and mirror lists via an external YAML file without changing code or recompiling.
 
-**Config file search order (when not specified):**
+**Pointing apt-proxy at the file:** drop it at one of the search paths, or name
+it explicitly. When no path is given, the first of these that exists wins:
 
 1. `./config/distributions.yaml`
 2. `./distributions.yaml`
 3. `/etc/apt-proxy/distributions.yaml`
 4. `~/.config/apt-proxy/distributions.yaml`
 
-You can also set the path explicitly via `--distributions-config` or `APT_PROXY_DISTRIBUTIONS_CONFIG`.
+```bash
+# found on the search path
+./apt-proxy
+
+# or named explicitly, from anywhere
+./apt-proxy --distributions-config=/srv/apt-proxy/distributions.yaml
+```
+
+`APT_PROXY_DISTRIBUTIONS_CONFIG` sets the same path as the flag. If nothing is
+found the built-in distributions are used, and a file that fails to parse leaves
+the built-ins in place with a warning rather than taking the server down.
 
 **Example `config/distributions.yaml`:**
 
@@ -200,13 +293,13 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-        - "mirrors.ustc.edu.cn/ubuntu/"
+        - "archive.ubuntu.com/ubuntu/"
+        - "us.archive.ubuntu.com/ubuntu/"
       custom:
-        - "mirrors.163.com/ubuntu/"
+        - "mirrors.kernel.org/ubuntu/"
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-      ustc: "mirrors.ustc.edu.cn/ubuntu/"
+      us: "us.archive.ubuntu.com/ubuntu/"
+      kernel: "mirrors.kernel.org/ubuntu/"
 ```
 
 After editing the file, send **SIGHUP** or call **POST /api/mirrors/refresh** to hot-reload without restart.
@@ -215,15 +308,99 @@ After editing the file, send **SIGHUP** or call **POST /api/mirrors/refresh** to
 
 - `id` — unique identifier used in URL paths (`/<id>/...`).
 - `name` — human-readable display name.
-- `type` — integer distro type: `1` Ubuntu, `2` UbuntuPorts, `3` Debian, `4` CentOS, `5` Alpine. `0` is reserved for "all".
+- `type` — integer distro type: `1` Ubuntu, `2` UbuntuPorts, `3` Debian, `4` CentOS, `5` Alpine. `0` is reserved for "all". **Any other positive integer registers a distribution apt-proxy does not ship** — see [Adding a distribution apt-proxy does not ship](#adding-a-distribution-apt-proxy-does-not-ship). A type already in use is rejected at load time, so pick a free number (`6`, `7`, …) and keep it stable: it is the key the mirror and rewriter state is held under across reloads.
 - `url_pattern` — regex matched against the request path; the captured group is appended to the upstream mirror.
+- `host_pattern` — optional regex matched against the request's `Host` header. Use it for archives served from the host root, where no path prefix exists for `url_pattern` to match (for example `deb http://security.debian.org <suite>-security main`, or `apt.armbian.com`). It is tried only after `url_pattern` fails, and when it matches the whole request path is appended to the upstream mirror. Anchor it (`^...$`) so a lookalike host cannot claim your distribution. The host is lower-cased before matching, so write the pattern in lower case. Omitting the field inherits the built-in matcher for that distro type (Debian keeps `security.debian.org`), the same way omitting `mirrors` keeps the built-in mirror list; setting it replaces the built-in. Only the built-in Debian security host routes to the dedicated Debian Security mirror — a `host_pattern` you configure for type `3` resolves to that entry's own mirror.
 - `benchmark_url` — relative path probed during mirror benchmarking.
 - `geo_mirror_api` — optional URL returning a list of geo-located mirrors (Ubuntu-style `mirrors.txt`).
 - `cache_rules[]` — per-pattern cache directives. `cache_control` overrides response `Cache-Control` for matched paths (only applied to `200`/`404` responses); `rewrite: true` enables URL rewriting for that pattern.
-- `mirrors.official` / `mirrors.custom` — mirror host lists. Aliases of the form `cn:<name>` are auto-generated from each mirror's host (e.g. `mirrors.tuna.tsinghua.edu.cn` → `cn:tsinghua`).
+- `mirrors.official` / `mirrors.custom` — mirror host lists. Aliases of the form `us:<name>` are auto-generated from each mirror's host (e.g. `us.archive.ubuntu.com/ubuntu/` → `us:archive`).
 - `aliases` — explicit name-to-mirror mapping that overrides/augments the auto-generated aliases.
 
-**Adding or editing a distribution:** Add or edit an entry under `distributions` with `id`, `name`, `type`, `url_pattern`, `benchmark_url`, `cache_rules`, `mirrors`, and `aliases`. The repo includes an example at `config/distributions.yaml` that you can extend.
+**Adding or editing a distribution:** Add or edit an entry under `distributions` with `id`, `name`, `type`, `url_pattern`, `benchmark_url`, `cache_rules`, `mirrors`, and `aliases` (plus `host_pattern` if the archive lives at a host root). The repo includes an example at `config/distributions.yaml` that you can extend.
+
+### Adding a distribution apt-proxy does not ship
+
+The five built-in distributions are not the limit. Give an entry a `type` outside
+`1`–`5` and it is registered as a new distribution: it gets its own mirror list,
+its own benchmark and its own rewriter, exactly like a built-in one. No code
+change or rebuild is involved.
+
+Deepin, cached under `/deepin/...`:
+
+```yaml
+distributions:
+  - id: deepin
+    name: Deepin
+    type: 6
+    url_pattern: "/deepin/(.+)$"
+    benchmark_url: "dists/apricot/main/binary-amd64/Release"
+    cache_rules:
+      - pattern: "deb$"
+        cache_control: "max-age=100000"
+        rewrite: true
+      - pattern: "(InRelease|Release(\\.gpg)?)$"
+        cache_control: "max-age=3600"
+        rewrite: true
+      # Catch-all last: apt also fetches package indexes
+      # (Packages.xz, by-hash/...), and an unmatched path is a 404.
+      - pattern: ".*"
+        cache_control: "max-age=3600"
+        rewrite: true
+    mirrors:
+      official:
+        - "community-packages.deepin.com/deepin/"
+```
+
+```text
+deb http://apt-proxy.example:3142/deepin apricot main contrib non-free
+```
+
+An archive served from a domain root has no path prefix for `url_pattern` to
+match, so name it with `host_pattern` instead. Armbian, whose `sources.list`
+entry is `deb http://apt.armbian.com <suite> main`:
+
+```yaml
+distributions:
+  - id: armbian
+    name: Armbian
+    type: 7
+    url_pattern: "/armbian/(.+)$"
+    host_pattern: "^apt\\.armbian\\.com(:\\d+)?$"
+    benchmark_url: "dists/bookworm/main/binary-arm64/Release"
+    cache_rules:
+      - pattern: "deb$"
+        cache_control: "max-age=100000"
+        rewrite: true
+      - pattern: "(InRelease|Release(\\.gpg)?)$"
+        cache_control: "max-age=3600"
+        rewrite: true
+      # Catch-all last: apt also fetches package indexes
+      # (Packages.xz, by-hash/...), and an unmatched path is a 404.
+      - pattern: ".*"
+        cache_control: "max-age=3600"
+        rewrite: true
+    mirrors:
+      official:
+        - "mirrors.tuna.tsinghua.edu.cn/armbian/"
+```
+
+Point the client at apt-proxy with `Host: apt.armbian.com` (an `http_proxy`
+setting does this for you) and requests for `/dists/<suite>/...` resolve against
+the configured mirror.
+
+A runnable version of all three shapes — Deepin, Armbian and Arch Linux in one
+file, with client setup for each — is in
+[`examples/custom-distros/`](examples/custom-distros/).
+
+Notes that save a round of debugging:
+
+- Keep `type` stable across reloads — mirror election and rewriter state are keyed by it.
+- `benchmark_url` must be a small file that exists on every mirror in the list; it is fetched to rank them.
+- `cache_rules` are tried in order, first match wins, and **a path matching no rule is a `404`** — not a pass-through. `apt update` fetches package indexes (`Packages.xz`, `by-hash/...`) as well as `InRelease`, so end with a catch-all `".*"` unless you are deliberately serving only certain file types.
+- Run with `--mode=all` (the default). `--mode` only names the built-in distributions; a custom one is served whenever the mode is `all`.
+- Only requests matching `url_pattern` (or `host_pattern`) are proxied; everything else still returns `404`.
+- The file has to be somewhere apt-proxy looks: one of the search paths above, or named with `--distributions-config` / `APT_PROXY_DISTRIBUTIONS_CONFIG`. A file the server never loads is an entry that silently does nothing. The startup log names the file in effect and every distribution that registered (`distributions registered config=... distributions=[...]`), which is the quickest way to confirm yours did.
 
 ### Custom Mirror Selection
 
@@ -234,14 +411,14 @@ By default, APT Proxy automatically benchmarks available mirrors and selects the
 ```bash
 # Cache multiple distributions
 ./apt-proxy \
-  --ubuntu=https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ \
-  --debian=https://mirrors.tuna.tsinghua.edu.cn/debian/
+  --ubuntu=mirrors.kernel.org/ubuntu/ \
+  --debian=ftp.us.debian.org/debian/
 
 # Cache only Ubuntu packages (reduces memory usage)
-./apt-proxy --mode=ubuntu --ubuntu=https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+./apt-proxy --mode=ubuntu --ubuntu=mirrors.kernel.org/ubuntu/
 
 # Cache only Debian packages
-./apt-proxy --mode=debian --debian=https://mirrors.tuna.tsinghua.edu.cn/debian/
+./apt-proxy --mode=debian --debian=deb.debian.org/debian/
 ```
 
 **Using Mirror Shortcuts:**
@@ -249,27 +426,142 @@ By default, APT Proxy automatically benchmarks available mirrors and selects the
 For convenience, you can use predefined shortcuts instead of full URLs:
 
 ```bash
-./apt-proxy --ubuntu=cn:tsinghua --debian=cn:163
+./apt-proxy --ubuntu=us:kernel --debian=us:stream
 ```
-
-**Available Shortcuts:**
-
-- `cn:tsinghua` - Tsinghua University Mirror
-- `cn:ustc` - USTC Mirror
-- `cn:163` - NetEase Mirror
-- `cn:aliyun` - Alibaba Cloud Mirror
-- `cn:huaweicloud` - Huawei Cloud Mirror
-- `cn:tencent` - Tencent Cloud Mirror
 
 Example output:
 
 ```
 2024/01/15 10:55:26 INF starting apt-proxy version=1.0.0
-2024/01/15 10:55:26 INF using specified debian mirror mirror=https://mirrors.163.com/debian/
-2024/01/15 10:55:26 INF using specified ubuntu mirror mirror=https://mirrors.tuna.tsinghua.edu.cn/ubuntu/
+2024/01/15 10:55:26 INF using specified debian mirror mirror=https://mirror.stream.centos.org/debian/
+2024/01/15 10:55:26 INF using specified ubuntu mirror mirror=mirrors.kernel.org/ubuntu/
 2024/01/15 10:55:26 INF proxy listening on 0.0.0.0:3142
 2024/01/15 10:55:26 INF server started successfully
 ```
+
+### Caching Third-Party Archives (`passthrough`)
+
+apt-proxy mirrors the distributions it is configured for; anything else is a
+`404`, deliberately — it is not an open forward proxy. The archives people
+install from are not only distributions, though: a Launchpad PPA, a vendor
+repository, an internal archive. Name those origins in an allowlist and
+apt-proxy fetches and caches them as they are, without rewriting:
+
+```bash
+./apt-proxy --passthrough=ppa.launchpad.net,https://download.docker.com
+```
+
+```yaml
+# apt-proxy.yaml
+passthrough:
+  - ppa.launchpad.net
+  - https://download.docker.com
+  - archive.internal.example:8080
+```
+
+`APT_PROXY_PASSTHROUGH` takes the same comma-separated form.
+
+**Client setup.** Passthrough applies to clients that use apt-proxy as their
+HTTP proxy, because that is what names the origin in the request:
+
+```bash
+http_proxy=http://apt-proxy.example:3142 apt-get update
+```
+
+The `sources.list` entry stays pointed at the origin. The URL-prefix form
+(`deb http://apt-proxy.example:3142/<host>/...`) addresses apt-proxy itself, so
+no origin is named and nothing passes through.
+
+**The entry has to be `http://`, even for an archive that is HTTPS-only:**
+
+```text
+deb http://download.docker.com/linux/ubuntu jammy stable
+```
+
+```yaml
+passthrough:
+  - https://download.docker.com   # apt-proxy makes the upstream hop TLS
+```
+
+An `https://` entry in `sources.list` makes apt send `CONNECT host:443` to its
+proxy and tunnel through it. A tunnel is encrypted end to end, so apt-proxy
+could forward the bytes but never read or cache them — which is the entire
+point of running it. apt-proxy therefore does not answer `CONNECT`; write the
+source as `http://` and let the `https://` allowlist entry (or [the `HTTPS///`
+marker](#403-on-https-urls)) carry the TLS upstream. The client-to-apt-proxy
+hop is plain HTTP on your own network, and apt verifies the repository's
+signatures regardless of transport.
+
+**Entry forms:**
+
+| Entry | Effect |
+|-------|--------|
+| `ppa.launchpad.net` | Proxied on the client's scheme, default ports only |
+| `https://download.docker.com` | Upstream request upgraded to TLS |
+| `archive.example:8080` | Only that port matches |
+
+An entry without a port matches ports 80 and 443 only — an allowlisted archive
+host should not also expose whatever else listens on that machine.
+
+**What it does not do:**
+
+- Wildcards are not supported. Name each origin; a typo is rejected at startup
+  rather than silently allowing less (or more) than you wrote.
+- Loopback, private, link-local addresses and `localhost` are refused as
+  entries. A *hostname* that resolves into your network is still accepted — the
+  allowlist is the security boundary, not a network-level control. Only put
+  origins there that you are willing to let any client of this proxy reach.
+- `GET` and `HEAD` only. apt fetches; it does not write.
+- Cache lifetime is the origin's: apt-proxy knows a distribution's index and
+  package TTLs, but nothing about a third-party archive, so its
+  `Cache-Control` is respected as-is.
+- Distribution routing wins. If an allowlisted host is also served by a
+  configured distribution, that distribution's mirror and cache rules apply.
+
+Startup logs the allowlist (`passthrough enabled for third-party origins`), so
+an empty or mistyped list is visible rather than silent.
+
+**apt-cacher-ng's `HTTPS///` marker** is the other way to reach an allowlisted
+origin, for clients already written for it:
+
+```text
+deb http://HTTPS///get.docker.com/linux/ubuntu jammy stable
+```
+
+Both spellings are accepted, the origin goes through the same allowlist, and
+the upstream request is always TLS. See [`403` on `HTTPS///`
+URLs](#403-on-https-urls).
+
+### Reaching Mirrors Through an Upstream Proxy
+
+apt-proxy's outbound connections honour the standard proxy environment
+variables, so a host that cannot reach mirror sites directly can route them
+through an existing forward proxy:
+
+```bash
+HTTP_PROXY=http://proxy.internal:3128 \
+HTTPS_PROXY=http://proxy.internal:3128 \
+NO_PROXY=10.0.0.0/8,.internal \
+  ./apt-proxy
+```
+
+| Variable | Effect |
+|----------|--------|
+| `HTTP_PROXY` / `http_proxy` | Proxy for `http://` upstream requests |
+| `HTTPS_PROXY` / `https_proxy` | Proxy for `https://` upstream requests |
+| `NO_PROXY` / `no_proxy` | Comma-separated hosts, domain suffixes (`.example.com`) and CIDRs that bypass the proxy |
+
+A SOCKS5 forward proxy works too — write it as the proxy URL:
+
+```bash
+HTTPS_PROXY=socks5h://127.0.0.1:1080 ./apt-proxy
+```
+
+These variables cover both package fetches and the benchmark that elects the
+fastest mirror, so mirror selection reflects the path the downloads will
+actually take. They apply only to apt-proxy's own connections to mirror sites;
+clients still reach apt-proxy directly, so do not put apt-proxy's own address in
+`HTTP_PROXY`. In Docker, pass them with `-e`.
 
 ## Docker Integration
 
@@ -282,7 +574,7 @@ docker run -d \
   --name=apt-proxy \
   -p 3142:3142 \
   -v apt-proxy-cache:/app/.aptcache \
-  soulteary/apt-proxy
+  lj020326/apt-proxy
 ```
 
 The `-v apt-proxy-cache:/app/.aptcache` option persists the cache across container restarts.
@@ -319,43 +611,44 @@ View all available options:
 
 **Available Options:** Flags are grouped by topic below; each flag has a 1:1 environment-variable and YAML equivalent (see [Environment Variables](#environment-variables) and [YAML Configuration File](#yaml-configuration-file)).
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-host` | Network interface to bind to | `0.0.0.0` |
-| `-port` | Port to listen on | `3142` |
-| `-mode` | Distribution mode: `all`, `ubuntu`, `ubuntu-ports`, `debian`, `centos`, `alpine` | `all` |
-| `-cachedir` | Directory to store cached packages | `./.aptcache` |
-| `-ubuntu` | Ubuntu mirror URL or shortcut | (auto-select) |
-| `-ubuntu-ports` | Ubuntu Ports mirror URL or shortcut | (auto-select) |
-| `-debian` | Debian mirror URL or shortcut | (auto-select) |
-| `-debian-security` | Dedicated Debian Security mirror URL or shortcut | (derived from `-debian`) |
-| `-centos` | CentOS mirror URL or shortcut | (auto-select) |
-| `-alpine` | Alpine mirror URL or shortcut | (auto-select) |
-| `-distributions-config` | Path to distributions/mirrors YAML (distributions.yaml) | (optional) |
-| `-cache-max-size` | Maximum cache size in GB (0 to disable) | `10` |
-| `-cache-ttl` | Cache TTL in hours (0 to disable) | `168` (7 days) |
-| `-cache-cleanup-interval` | Cache cleanup interval in minutes | `60` |
-| `-tls` | Enable TLS/HTTPS (requires `-tls-cert` and `-tls-key`) | `false` |
-| `-tls-cert` | Path to TLS certificate file | |
-| `-tls-key` | Path to TLS private key file | |
-| `-api-key` | API key for protected endpoints (auto-enables auth when set) | |
-| `-enable-api-auth` | Explicitly enable/disable API authentication middleware | `false` (auto `true` when `-api-key` is set) |
-| `-api-rate-limit` | API requests per IP per minute (`0` to disable) | `60` |
-| `-trusted-proxies` | Comma-separated CIDRs whose `X-Forwarded-For` is honored by rate limiter and auth | |
-| `-upstream-keep-alive` | Enable HTTP keep-alive to upstream mirrors | `true` |
-| `-storage-backend` | Cache storage backend: `disk` or `s3` (see [S3 Storage Backend](#s3-storage-backend)) | `disk` |
-| `-s3-endpoint` | S3 endpoint host[:port] (required when backend is `s3`) | |
-| `-s3-region` | S3 region (required for AWS S3, ignored by most MinIO services) | |
-| `-s3-bucket` | S3 bucket name (must already exist) | |
-| `-s3-prefix` | S3 object key prefix | `apt-proxy/` |
-| `-s3-access-key` / `-s3-secret-key` | S3 IAM credentials | |
-| `-s3-session-token` | Optional STS session token | |
-| `-s3-use-ssl` | Use HTTPS to talk to the S3 endpoint | `true` |
-| `-s3-use-path-style` | Force path-style URLs (needed for MinIO/Ceph) | `false` |
-| `-s3-inline-max-mb` | In-memory write threshold in MiB before spilling to TempDir | `32` |
-| `-s3-temp-dir` | Directory for spilled writes (default `os.TempDir()`) | |
-| `-config` | Path to YAML configuration file | |
-| `-debug` | Enable verbose debug logging (also dumps request headers/body to logs) | `false` |
+| Option                              | Description                                                                           | Default                                      |
+|-------------------------------------|---------------------------------------------------------------------------------------|----------------------------------------------|
+| `-host`                             | Network interface to bind to                                                          | `0.0.0.0`                                    |
+| `-port`                             | Port to listen on                                                                     | `3142`                                       |
+| `-mode`                             | Distribution mode: `all`, `ubuntu`, `ubuntu-ports`, `debian`, `centos`, `alpine`      | `all`                                        |
+| `-cachedir`                         | Directory to store cached packages                                                    | `./.aptcache`                                |
+| `-ubuntu`                           | Ubuntu mirror URL or shortcut                                                         | (auto-select)                                |
+| `-ubuntu-ports`                     | Ubuntu Ports mirror URL or shortcut                                                   | (auto-select)                                |
+| `-debian`                           | Debian mirror URL or shortcut                                                         | (auto-select)                                |
+| `-debian-security`                  | Dedicated Debian Security mirror URL or shortcut                                      | (derived from `-debian`)                     |
+| `-centos`                           | CentOS mirror URL or shortcut                                                         | (auto-select)                                |
+| `-alpine`                           | Alpine mirror URL or shortcut                                                         | (auto-select)                                |
+| `-distributions-config`             | Path to distributions/mirrors YAML (distributions.yaml)                               | (optional)                                   |
+| `-passthrough`                      | Comma-separated third-party origins to fetch and cache unrewritten                    | (empty)                                      |
+| `-cache-max-size`                   | Maximum cache size in GB (0 to disable)                                               | `10`                                         |
+| `-cache-ttl`                        | Cache TTL in hours (0 to disable)                                                     | `168` (7 days)                               |
+| `-cache-cleanup-interval`           | Cache cleanup interval in minutes                                                     | `60`                                         |
+| `-tls`                              | Enable TLS/HTTPS (requires `-tls-cert` and `-tls-key`)                                | `false`                                      |
+| `-tls-cert`                         | Path to TLS certificate file                                                          |                                              |
+| `-tls-key`                          | Path to TLS private key file                                                          |                                              |
+| `-api-key`                          | API key for protected endpoints (auto-enables auth when set)                          |                                              |
+| `-enable-api-auth`                  | Explicitly enable/disable API authentication middleware                               | `false` (auto `true` when `-api-key` is set) |
+| `-api-rate-limit`                   | API requests per IP per minute (`0` to disable)                                       | `60`                                         |
+| `-trusted-proxies`                  | Comma-separated CIDRs whose `X-Forwarded-For` is honored by rate limiter and auth     |                                              |
+| `-upstream-keep-alive`              | Enable HTTP keep-alive to upstream mirrors                                            | `true`                                       |
+| `-storage-backend`                  | Cache storage backend: `disk` or `s3` (see [S3 Storage Backend](#s3-storage-backend)) | `disk`                                       |
+| `-s3-endpoint`                      | S3 endpoint host[:port] (required when backend is `s3`)                               |                                              |
+| `-s3-region`                        | S3 region (required for AWS S3, ignored by most MinIO services)                       |                                              |
+| `-s3-bucket`                        | S3 bucket name (must already exist)                                                   |                                              |
+| `-s3-prefix`                        | S3 object key prefix                                                                  | `apt-proxy/`                                 |
+| `-s3-access-key` / `-s3-secret-key` | S3 IAM credentials                                                                    |                                              |
+| `-s3-session-token`                 | Optional STS session token                                                            |                                              |
+| `-s3-use-ssl`                       | Use HTTPS to talk to the S3 endpoint                                                  | `true`                                       |
+| `-s3-use-path-style`                | Force path-style URLs (needed for MinIO/Ceph)                                         | `false`                                      |
+| `-s3-inline-max-mb`                 | In-memory write threshold in MiB before spilling to TempDir                           | `32`                                         |
+| `-s3-temp-dir`                      | Directory for spilled writes (default `os.TempDir()`)                                 |                                              |
+| `-config`                           | Path to YAML configuration file                                                       |                                              |
+| `-debug`                            | Enable verbose debug logging (also dumps request headers/body to logs)                | `false`                                      |
 
 **Example with Custom Configuration:**
 
@@ -365,7 +658,7 @@ View all available options:
   --port=3142 \
   --cachedir=/var/cache/apt-proxy \
   --mode=ubuntu \
-  --ubuntu=cn:tsinghua \
+  --ubuntu=us:ubuntu \
   --cache-max-size=20 \
   --debug
 ```
@@ -376,78 +669,87 @@ Every CLI flag has an equivalent environment variable. Plus a few extras for log
 
 **Server / Mode**
 
-| Variable | Equivalent flag | Description |
-|----------|-----------------|-------------|
-| `APT_PROXY_HOST` | `-host` | Network interface to bind to |
-| `APT_PROXY_PORT` | `-port` | Port to listen on |
-| `APT_PROXY_MODE` | `-mode` | Distribution mode (`all`/`ubuntu`/`ubuntu-ports`/`debian`/`centos`/`alpine`) |
-| `APT_PROXY_DEBUG` | `-debug` | Enable verbose debug logging |
-| `APT_PROXY_UBUNTU` | `-ubuntu` | Ubuntu mirror URL or shortcut |
-| `APT_PROXY_UBUNTU_PORTS` | `-ubuntu-ports` | Ubuntu Ports mirror URL or shortcut |
-| `APT_PROXY_DEBIAN` | `-debian` | Debian mirror URL or shortcut |
-| `APT_PROXY_DEBIAN_SECURITY` | `-debian-security` | Dedicated Debian Security mirror URL or shortcut |
-| `APT_PROXY_CENTOS` | `-centos` | CentOS mirror URL or shortcut |
-| `APT_PROXY_ALPINE` | `-alpine` | Alpine mirror URL or shortcut |
-| `APT_PROXY_UPSTREAM_KEEP_ALIVE` | `-upstream-keep-alive` | HTTP keep-alive to upstream mirrors |
+| Variable                        | Equivalent flag        | Description                                                                  |
+|---------------------------------|------------------------|------------------------------------------------------------------------------|
+| `APT_PROXY_HOST`                | `-host`                | Network interface to bind to                                                 |
+| `APT_PROXY_PORT`                | `-port`                | Port to listen on                                                            |
+| `APT_PROXY_MODE`                | `-mode`                | Distribution mode (`all`/`ubuntu`/`ubuntu-ports`/`debian`/`centos`/`alpine`) |
+| `APT_PROXY_DEBUG`               | `-debug`               | Enable verbose debug logging                                                 |
+| `APT_PROXY_UBUNTU`              | `-ubuntu`              | Ubuntu mirror URL or shortcut                                                |
+| `APT_PROXY_UBUNTU_PORTS`        | `-ubuntu-ports`        | Ubuntu Ports mirror URL or shortcut                                          |
+| `APT_PROXY_DEBIAN`              | `-debian`              | Debian mirror URL or shortcut                                                |
+| `APT_PROXY_DEBIAN_SECURITY`     | `-debian-security`     | Dedicated Debian Security mirror URL or shortcut                             |
+| `APT_PROXY_CENTOS`              | `-centos`              | CentOS mirror URL or shortcut                                                |
+| `APT_PROXY_ALPINE`              | `-alpine`              | Alpine mirror URL or shortcut                                                |
+| `APT_PROXY_UPSTREAM_KEEP_ALIVE` | `-upstream-keep-alive` | HTTP keep-alive to upstream mirrors                                          |
 
 **Cache**
 
-| Variable | Equivalent flag | Description |
-|----------|-----------------|-------------|
-| `APT_PROXY_CACHEDIR` | `-cachedir` | Cache directory |
-| `APT_PROXY_CACHE_MAX_SIZE` | `-cache-max-size` | Maximum cache size in GB (`0` disables) |
-| `APT_PROXY_CACHE_TTL` | `-cache-ttl` | Cache TTL in hours (`0` disables) |
+| Variable                           | Equivalent flag           | Description                                      |
+|------------------------------------|---------------------------|--------------------------------------------------|
+| `APT_PROXY_CACHEDIR`               | `-cachedir`               | Cache directory                                  |
+| `APT_PROXY_CACHE_MAX_SIZE`         | `-cache-max-size`         | Maximum cache size in GB (`0` disables)          |
+| `APT_PROXY_CACHE_TTL`              | `-cache-ttl`              | Cache TTL in hours (`0` disables)                |
 | `APT_PROXY_CACHE_CLEANUP_INTERVAL` | `-cache-cleanup-interval` | Cache cleanup interval in minutes (`0` disables) |
 
 **TLS**
 
-| Variable | Equivalent flag | Description |
-|----------|-----------------|-------------|
-| `APT_PROXY_TLS_ENABLED` | `-tls` | Enable TLS/HTTPS |
-| `APT_PROXY_TLS_CERT` | `-tls-cert` | Path to TLS certificate |
-| `APT_PROXY_TLS_KEY` | `-tls-key` | Path to TLS private key |
+| Variable                | Equivalent flag | Description             |
+|-------------------------|-----------------|-------------------------|
+| `APT_PROXY_TLS_ENABLED` | `-tls`          | Enable TLS/HTTPS        |
+| `APT_PROXY_TLS_CERT`    | `-tls-cert`     | Path to TLS certificate |
+| `APT_PROXY_TLS_KEY`     | `-tls-key`      | Path to TLS private key |
 
 **Security (API)**
 
-| Variable | Equivalent flag | Description |
-|----------|-----------------|-------------|
-| `APT_PROXY_API_KEY` | `-api-key` | API key for protected endpoints |
-| `APT_PROXY_ENABLE_API_AUTH` | `-enable-api-auth` | Explicit toggle for API auth middleware |
-| `APT_PROXY_API_RATE_LIMIT_PER_MINUTE` | `-api-rate-limit` | API requests per IP per minute (`0` disables) |
-| `APT_PROXY_TRUSTED_PROXIES` | `-trusted-proxies` | Comma-separated trusted proxy CIDRs |
+| Variable                              | Equivalent flag    | Description                                   |
+|---------------------------------------|--------------------|-----------------------------------------------|
+| `APT_PROXY_API_KEY`                   | `-api-key`         | API key for protected endpoints               |
+| `APT_PROXY_ENABLE_API_AUTH`           | `-enable-api-auth` | Explicit toggle for API auth middleware       |
+| `APT_PROXY_API_RATE_LIMIT_PER_MINUTE` | `-api-rate-limit`  | API requests per IP per minute (`0` disables) |
+| `APT_PROXY_TRUSTED_PROXIES`           | `-trusted-proxies` | Comma-separated trusted proxy CIDRs           |
 
-**Storage Backend**
-
-| Variable | Equivalent flag | Description |
-|----------|-----------------|-------------|
-| `APT_PROXY_STORAGE_BACKEND` | `-storage-backend` | `disk` (default) or `s3` |
-| `APT_PROXY_S3_ENDPOINT` | `-s3-endpoint` | S3 endpoint host[:port] |
-| `APT_PROXY_S3_REGION` | `-s3-region` | S3 region |
-| `APT_PROXY_S3_BUCKET` | `-s3-bucket` | S3 bucket name |
-| `APT_PROXY_S3_PREFIX` | `-s3-prefix` | S3 object key prefix |
-| `APT_PROXY_S3_ACCESS_KEY` | `-s3-access-key` | S3 access key ID |
-| `APT_PROXY_S3_SECRET_KEY` | `-s3-secret-key` | S3 secret access key |
-| `APT_PROXY_S3_SESSION_TOKEN` | `-s3-session-token` | Optional STS session token |
-| `APT_PROXY_S3_USE_SSL` | `-s3-use-ssl` | Use HTTPS to talk to the S3 endpoint |
-| `APT_PROXY_S3_USE_PATH_STYLE` | `-s3-use-path-style` | Force path-style URLs |
-| `APT_PROXY_S3_INLINE_MAX_MB` | `-s3-inline-max-mb` | Memory write threshold in MiB before spilling |
-| `APT_PROXY_S3_TEMP_DIR` | `-s3-temp-dir` | Directory for spilled writes |
-
-**Configuration files**
-
-| Variable | Equivalent flag | Description |
-|----------|-----------------|-------------|
-| `APT_PROXY_CONFIG_FILE` | `-config` | Path to `apt-proxy.yaml` |
-| `APT_PROXY_DISTRIBUTIONS_CONFIG` | `-distributions-config` | Path to `distributions.yaml` |
-
-**Logging & Tracing** (no CLI equivalent)
+**Upstream Network** (standard variables, no equivalent flag)
 
 | Variable | Description |
 |----------|-------------|
-| `APT_PROXY_LOG_LEVEL` | Log level: `debug` / `info` / `warn` / `error`. `--debug` forces `debug`. |
-| `APT_PROXY_LOG_FORMAT` | Log format: `json` / `console` / `auto` (auto-detects based on TTY). |
-| `LOG_LEVEL` | Legacy alias; only used when `APT_PROXY_LOG_LEVEL` is unset. |
-| `LOG_FORMAT` | Legacy alias; only used when `APT_PROXY_LOG_FORMAT` is unset. |
+| `HTTP_PROXY` / `http_proxy` | Forward proxy for `http://` requests to mirrors |
+| `HTTPS_PROXY` / `https_proxy` | Forward proxy for `https://` requests to mirrors (`socks5h://` accepted) |
+| `NO_PROXY` / `no_proxy` | Hosts, domain suffixes and CIDRs that bypass the forward proxy |
+
+**Storage Backend**
+
+| Variable                      | Equivalent flag      | Description                                   |
+|-------------------------------|----------------------|-----------------------------------------------|
+| `APT_PROXY_STORAGE_BACKEND`   | `-storage-backend`   | `disk` (default) or `s3`                      |
+| `APT_PROXY_S3_ENDPOINT`       | `-s3-endpoint`       | S3 endpoint host[:port]                       |
+| `APT_PROXY_S3_REGION`         | `-s3-region`         | S3 region                                     |
+| `APT_PROXY_S3_BUCKET`         | `-s3-bucket`         | S3 bucket name                                |
+| `APT_PROXY_S3_PREFIX`         | `-s3-prefix`         | S3 object key prefix                          |
+| `APT_PROXY_S3_ACCESS_KEY`     | `-s3-access-key`     | S3 access key ID                              |
+| `APT_PROXY_S3_SECRET_KEY`     | `-s3-secret-key`     | S3 secret access key                          |
+| `APT_PROXY_S3_SESSION_TOKEN`  | `-s3-session-token`  | Optional STS session token                    |
+| `APT_PROXY_S3_USE_SSL`        | `-s3-use-ssl`        | Use HTTPS to talk to the S3 endpoint          |
+| `APT_PROXY_S3_USE_PATH_STYLE` | `-s3-use-path-style` | Force path-style URLs                         |
+| `APT_PROXY_S3_INLINE_MAX_MB`  | `-s3-inline-max-mb`  | Memory write threshold in MiB before spilling |
+| `APT_PROXY_S3_TEMP_DIR`       | `-s3-temp-dir`       | Directory for spilled writes                  |
+
+**Configuration files**
+
+| Variable                         | Equivalent flag         | Description                     |
+|----------------------------------|-------------------------|---------------------------------|
+| `APT_PROXY_CONFIG_FILE`          | `-config`               | Path to `apt-proxy.yaml`        |
+| `APT_PROXY_DISTRIBUTIONS_CONFIG` | `-distributions-config` | Path to `distributions.yaml`    |
+| `APT_PROXY_PASSTHROUGH`          | `-passthrough`          | Allowlisted third-party origins |
+
+**Logging & Tracing** (no CLI equivalent)
+
+| Variable                      | Description                                                                                                                  |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `APT_PROXY_LOG_LEVEL`         | Log level: `debug` / `info` / `warn` / `error`. `--debug` forces `debug`.                                                    |
+| `APT_PROXY_LOG_FORMAT`        | Log format: `json` / `console` / `auto` (auto-detects based on TTY).                                                         |
+| `LOG_LEVEL`                   | Legacy alias; only used when `APT_PROXY_LOG_LEVEL` is unset.                                                                 |
+| `LOG_FORMAT`                  | Legacy alias; only used when `APT_PROXY_LOG_FORMAT` is unset.                                                                |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | When set, enables OpenTelemetry tracing and exports spans via OTLP to this endpoint. Spans are flushed on graceful shutdown. |
 
 **Configuration Priority:** CLI flags > Environment variables > Config file > Default values
@@ -485,10 +787,10 @@ storage:
     temp_dir: ""
 
 mirrors:
-  ubuntu: cn:tsinghua
+  ubuntu: us:ubuntu
   ubuntu_ports: ""
-  debian: cn:ustc
-  debian_security: https://mirrors.ustc.edu.cn/debian-security/
+  debian: us:stream
+  debian_security: https://deb.debian.org/debian-security/
   centos: ""
   alpine: ""
 
@@ -533,6 +835,69 @@ The cache supports a size limit configured via `max_size_gb` (YAML), `--cache-ma
 - Set to `0` to disable the size limit; no size-based eviction is performed.
 
 After a process restart, the LRU order is approximated using file modification time until new accesses update it.
+
+### Cache Directory Layout
+
+The disk backend keeps four things under the cache directory. They appear on the
+first store, not at startup:
+
+```
+body/v1/<hashed-key>      response bodies
+header/v1/<hashed-key>    status line, headers, and the store timestamp
+staging/v1/               entries being written; empty when idle
+stale-markers.json        invalidation state
+```
+
+An entry is a body and a header together, and the two are published as one step:
+bytes are written under `staging/v1` and renamed into place, so re-storing a file
+that is already cached never exposes a truncated or empty entry to a concurrent
+reader. Nothing under `staging/v1` is a cache entry — **exclude it when you size
+the cache directory, back it up, or rsync it.** Files a killed process left there
+are swept on the next start.
+
+Only `body/v1` and `header/v1` count toward `max_size_gb`; that is the same total
+the LRU eviction above compares against the limit. Measured on a single
+1000-byte entry: body 1000 + header 103 = 1103 bytes accounted, with the 95-byte
+`stale-markers.json` excluded.
+
+The S3 backend has no `staging/` prefix. Object writes go straight to the final
+key, because staging needs a rename and the VFS interface has none.
+
+### Cache Keys and Mirror Selection
+
+A cache entry is keyed by the **rewritten** upstream URL, not by what the client
+asked for. Rewriting happens before the cache layer, so a request for
+`/ubuntu/dists/noble/InRelease` is stored under the elected mirror's URL —
+`http://mirrors.example.com/ubuntu/dists/noble/InRelease`.
+
+The practical consequence: **changing the elected mirror starts a fresh cache.**
+The same client request is then a different key, so it is refetched, and the
+entries under the old mirror stay on disk until TTL or LRU eviction removes
+them. Measured on a single object:
+
+```
+same mirror, second request   -> upstream contacted once   (cache hit)
+after switching the mirror    -> refetched from the new mirror
+```
+
+Mirror election runs at startup and on an explicit refresh. Benchmark results
+are not persisted, so **a restart re-elects**, and so do `SIGHUP` and `POST
+/api/mirrors/refresh`. (A mirror timing out *during* benchmarking is not one of
+these: it is simply dropped from that run's candidates, and if every candidate
+fails the current mirror is left in place.)
+
+This is the conservative behaviour — two mirrors are not guaranteed to serve
+byte-identical content, so entries are not shared between them. If you want a
+cache that stays warm across restarts, **pin the mirror** instead of letting it
+be elected:
+
+```bash
+./apt-proxy --ubuntu=https://mirrors.kernel.org/ubuntu/ \
+            --debian=https://mirror.math.princeton.edu/pub/debian/
+```
+
+A pinned mirror is used as-is with no benchmarking, so the keys are stable for
+the life of the deployment.
 
 ### S3 Storage Backend
 
@@ -598,8 +963,6 @@ APT_PROXY_S3_USE_PATH_STYLE=true
 | Ceph RGW           | `rgw.example.com`                                    | varies    | `true`           | path-style is required                 |
 | Cloudflare R2      | `<account>.r2.cloudflarestorage.com`                 | `true`    | `false`          | Region must be `auto`                  |
 | Backblaze B2       | `s3.<region>.backblazeb2.com`                        | `true`    | `false`          | App keys with read+write to bucket     |
-| Aliyun OSS         | `oss-cn-hangzhou.aliyuncs.com`                       | `true`    | `false`          | RAM keys with `oss:GetObject/PutObject`|
-| Tencent COS        | `cos.ap-shanghai.myqcloud.com`                       | `true`    | `false`          | Use SecretId/SecretKey                 |
 | Garage / SeaweedFS | depends                                              | varies    | `true`           | Treat as MinIO-flavoured               |
 
 **Operational notes:**
@@ -804,6 +1167,8 @@ curl -X POST http://localhost:3142/api/mirrors/refresh
 
 Both paths are equivalent: they reload `distributions.yaml` and re-run mirror selection. SIGHUP signals are debounced (consecutive signals within ~500ms are coalesced) and queued (at most one extra reload is scheduled while a reload is in progress), so it is safe to invoke them rapidly from scripts.
 
+A reload does not interrupt serving. Mirror re-election is network-bound and can take a while, and for that whole window requests continue to be answered from the previous configuration; the new distributions and their mirrors become visible together, in one step, once the election finishes. A distribution added by the reload is simply not routable until then, rather than matching a rule whose mirror does not exist yet.
+
 ## Observability
 
 ### Metrics
@@ -820,7 +1185,7 @@ The `/metrics` endpoint exposes Prometheus metrics. Key metrics and suggested al
 | `apt_proxy_cache_upstream_errors_total` | Upstream fetch errors | Error rate spike |
 | Health (`/healthz`, `/readyz`) | Service and dependency health | Probes failing |
 
-Exact labels and additional series are emitted by the underlying [httpcache-kit](https://github.com/soulteary/httpcache-kit); scrape `/metrics` to enumerate them.
+Exact labels and additional series are emitted by the underlying [httpcache-kit](https://github.com/lj020326/httpcache-kit); scrape `/metrics` to enumerate them.
 
 ### Logging
 
@@ -914,8 +1279,11 @@ apt-proxy/
 │   │   └── templates.go      # URL templating helpers
 │   ├── proxy/                # Core proxy functionality
 │   │   ├── handler.go        # HTTP request handling
+│   │   ├── connect.go        # HTTP CONNECT TLS tunneling
+│   │   ├── tls_rewrite.go    # apt-cacher-ng HTTPS/// marker (TLS fetch + cache)
 │   │   ├── rewriter.go       # URL rewriting
-│   │   ├── transport.go      # Upstream HTTP transport (keep-alive, timeouts)
+│   │   ├── transport.go      # Upstream HTTP/HTTPS transport (keep-alive, timeouts)
+│   │   ├── hostprefix.go     # Host-prefixed path matching
 │   │   ├── page.go           # Home page rendering
 │   │   └── stats.go          # Statistics
 │   ├── state/                # Per-Server runtime state (proxy mode, mirror URLs)
@@ -930,12 +1298,12 @@ apt-proxy/
 ### Building from Source
 
 ```bash
-git clone https://github.com/soulteary/apt-proxy.git
+git clone https://github.com/lj020326/apt-proxy.git
 cd apt-proxy
 go build -o apt-proxy ./cmd/apt-proxy
 ```
 
-When developing alongside [vfs-kit](https://github.com/soulteary/vfs-kit) or [httpcache-kit](https://github.com/soulteary/httpcache-kit), `go.mod` may use `replace` directives (e.g. `../kits/httpcache-kit`); remove them when using published versions.
+When developing alongside [vfs-kit](https://github.com/lj020326/vfs-kit) or [httpcache-kit](https://github.com/lj020326/httpcache-kit), `go.mod` may use `replace` directives (e.g. `../kits/httpcache-kit`); remove them when using published versions.
 
 ### Running Tests
 
@@ -953,6 +1321,133 @@ go tool cover -html=coverage.out
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Troubleshooting
+
+### `403` on `HTTPS///` URLs
+
+apt-proxy implements apt-cacher-ng's `HTTPS///` rewrite marker
+(`deb http://HTTPS///example.com/repo ...`): it fetches `https://example.com/repo`
+and caches it. The origin must be on the [passthrough
+allowlist](#caching-third-party-archives-passthrough) first, which is what a
+`403` means:
+
+```bash
+./apt-proxy --passthrough=get.docker.com
+```
+
+The refusal names the origin and the setting, so the message itself says what
+to add. Other statuses from a marker URL:
+
+| Status | Meaning |
+|--------|---------|
+| `403` | The origin is not on the allowlist |
+| `400` | The marker names no origin (`.../HTTPS///` with nothing after it) |
+| `405` | Not a `GET` or `HEAD` |
+
+Both spellings apt-cacher-ng documents are accepted — `Host: HTTPS` with the
+origin in the path, and the marker embedded in a path against apt-proxy's own
+address — in any case.
+
+### Routing changed after upgrading to v0.17.0
+
+Before v0.17.0 a `distributions.yaml` was read **only** when its path was named
+with `--distributions-config` / `APT_PROXY_DISTRIBUTIONS_CONFIG`. A file sitting
+on one of the search paths was silently ignored, and SIGHUP reloaded nothing for
+such a deployment. Both now behave as this README describes them — see
+[Adding a distribution apt-proxy does not ship](#adding-a-distribution-apt-proxy-does-not-ship).
+
+That is a fix, but it is visible on upgrade. A `distributions.yaml` left at
+`./config/`, `./`, `/etc/apt-proxy/` or `~/.config/apt-proxy/` — an experiment, a
+template copied out of this repository, a leftover from an older deployment —
+takes effect the first time you start v0.17.0, with no change to your command
+line. Entries whose `type` is `1`–`5` **reconfigure the built-in distribution**
+of that type, so mirrors and `url_pattern` can move under you.
+
+The startup log names the file in effect and everything that registered:
+
+```text
+config="config/distributions.yaml" distributions=["alpine","centos","debian","deepin","ubuntu","ubuntu-ports"]
+```
+
+`config="(built-in defaults)"` means no external configuration is in effect —
+which is **not** the same as no file being found. A file that exists but cannot
+be read, parsed or validated is rejected as a whole, and startup falls back to
+the built-ins and logs that same value. The warning just above it is what tells
+the two apart:
+
+```text
+failed to load distributions config; using built-in defaults  error="invalid distribution config for x: ..."
+```
+
+That warning appears *only* when a file was found and rejected, so its presence
+is the answer: no warning means nothing was found; a warning means your file is
+there and broken, and its `error` field says why. (It does not name the file
+when the file came from the search path rather than being named explicitly —
+check the four paths above in order.)
+
+If a file you did not expect is named in `config=`, move or delete it, or name
+the one you do want explicitly.
+
+```text
+# Cache Docker's APT repo via the marker
+deb http://apt-proxy.example:3142/HTTPS///download.docker.com/linux/ubuntu jammy stable
+
+# Or configure an https mirror for a known distribution
+./apt-proxy --ubuntu=https://mirrors.kernel.org/ubuntu/
+```
+
+`CONNECT`-based HTTPS proxying (`Acquire::https::Proxy`) works but does
+**not** populate the cache, because the proxy only sees ciphertext.
+
+### `404` on a PPA or vendor repository
+
+apt-proxy only proxies the distributions it is configured for. A path that
+merely *contains* a distribution segment is a different repository, not a mirror
+of that distribution, and returns `404`:
+
+```text
+/ppa.launchpad.net/deadsnakes/ppa/ubuntu/dists/jammy/InRelease   404
+/download.docker.com/linux/ubuntu/dists/jammy/InRelease          404
+```
+
+Earlier versions matched those paths and answered them from the distribution's
+own mirror, so a PPA request came back as the **main Ubuntu archive's** index
+for that suite — `200`, valid-looking, and the wrong repository's content. The
+`404` replaces that silent substitution.
+
+What to do depends on how the client reaches apt-proxy.
+
+**Using apt-proxy as APT's proxy** — `http_proxy=...`, or `Acquire::http::Proxy`,
+which is the Quick Start setup: *every* request goes through apt-proxy, so
+editing the `sources.list` entry changes nothing. The request still arrives here,
+named by `Host`, and still `404`s. Bypass apt-proxy for that host instead:
+
+```text
+# /etc/apt/apt.conf.d/99-apt-proxy-bypass
+Acquire::http::Proxy::ppa.launchpad.net "DIRECT";
+Acquire::https::Proxy::ppa.launchpad.net "DIRECT";
+```
+
+**Using the URL-prefix form** — `deb http://apt-proxy.example:3142/<host>/...`:
+point that entry at its origin instead.
+
+**Either way**, if you would rather apt-proxy cached the repository than skipped
+it, add the origin to the `passthrough` allowlist — see [Caching Third-Party
+Archives](#caching-third-party-archives-passthrough):
+
+```bash
+./apt-proxy --passthrough=ppa.launchpad.net
+```
+
+That is the short path for an archive you only want cached as-is. Model it as a
+distribution instead — see [Adding a distribution apt-proxy does not
+ship](#adding-a-distribution-apt-proxy-does-not-ship) — when you want apt-proxy's
+own cache rules, mirror list and benchmarking applied to it; in proxy mode that
+entry needs a `host_pattern` matching the origin
+(`host_pattern: "^ppa\\.launchpad\\.net$"`), since the request arrives with no
+path prefix to match.
+
+The apt-cacher-ng host-prefixed form is unaffected: a single host segment in
+front of the distribution segment (`/ftp.uni-kl.de/debian/...`) still routes.
 
 ### Debug Mode
 
@@ -987,12 +1482,17 @@ http_proxy=http://192.168.33.1:3142 \
 **Issue**: Slow first-time downloads
 **Solution**: This is expected - the first download populates the cache. Subsequent downloads will be faster.
 
+**Issue**: Cache appears empty after a restart, and everything downloads again
+**Solution**: Cache entries are keyed by the elected mirror's URL, and mirror
+election re-runs on restart. Pin the mirror (`--ubuntu=…`, `--debian=…`) to keep
+the keys stable. See *Cache Keys and Mirror Selection*.
+
 **Issue**: Cache directory growing too large
 **Solution**: Configure cache limits with `--cache-max-size` or use the cleanup API endpoint.
 
 ## License
 
-This project is licensed under the [Apache License 2.0](https://github.com/soulteary/apt-proxy/blob/master/LICENSE).
+This project is licensed under the [Apache License 2.0](https://github.com/lj020326/apt-proxy/blob/master/LICENSE).
 
 ## Acknowledgments
 
@@ -1001,12 +1501,13 @@ This project builds upon the excellent work of:
 - [lox/apt-proxy](https://github.com/lox/apt-proxy) - Original APT proxy implementation
 - [lox/httpcache](https://github.com/lox/httpcache) - HTTP caching library (MIT License)
 - [djherbis/stream](https://github.com/djherbis/stream) - Stream handling library (MIT License)
+- [soulteary/apt-cache](https://github.com/soulteary/apt-cache) - Forked APT proxy implementation
 - [soulteary/vfs-kit](https://github.com/soulteary/vfs-kit) - Virtual filesystem library (from rainycape/vfs, Mozilla Public License 2.0)
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/soulteary/apt-proxy/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/soulteary/apt-proxy/discussions)
+- **Issues**: [GitHub Issues](https://github.com/lj020326/apt-proxy/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/lj020326/apt-proxy/discussions)
 
 ---
 

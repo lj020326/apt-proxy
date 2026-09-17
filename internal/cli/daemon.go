@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,31 +18,34 @@ import (
 	"context"
 	stderrors "errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
-	health "github.com/soulteary/health-kit/v2"
-	logger "github.com/soulteary/logger-kit/v2"
-	metrics "github.com/soulteary/metrics-kit/v2"
-	middleware "github.com/soulteary/middleware-kit/v2"
-	tracing "github.com/soulteary/tracing-kit"
-	version "github.com/soulteary/version-kit/v2"
+	health "github.com/lj020326/health-kit/v2"
+	logger "github.com/lj020326/logger-kit/v2"
+	metrics "github.com/lj020326/metrics-kit/v2"
+	middleware "github.com/lj020326/middleware-kit/v2"
+	tracing "github.com/lj020326/tracing-kit"
+	version "github.com/lj020326/version-kit/v2"
 
-	"github.com/soulteary/apt-proxy/internal/api"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
-	apperrors "github.com/soulteary/apt-proxy/internal/errors"
-	"github.com/soulteary/apt-proxy/internal/proxy"
-	"github.com/soulteary/apt-proxy/internal/state"
-	"github.com/soulteary/apt-proxy/internal/storage/s3vfs"
-	httpcache "github.com/soulteary/httpcache-kit/v2"
-	vfs "github.com/soulteary/vfs-kit"
+	"github.com/lj020326/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	apperrors "github.com/lj020326/apt-proxy/internal/errors"
+	"github.com/lj020326/apt-proxy/internal/passthrough"
+	"github.com/lj020326/apt-proxy/internal/proxy"
+	"github.com/lj020326/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/storage/s3vfs"
+	httpcache "github.com/lj020326/httpcache-kit/v2"
+	vfs "github.com/lj020326/vfs-kit"
 )
 
 // Server represents the main application server that handles HTTP requests,
@@ -192,18 +195,26 @@ func (s *Server) initialize() error {
 	// Initialize health check aggregator
 	s.initHealthChecks()
 
-	// Build the per-Server distribution registry. RegisterBuiltins seeds
-	// the compile-time defaults; Reload overlays user-supplied YAML when
-	// DistributionsConfigPath is set.
+	// Build the per-Server distribution registry. RegisterBuiltins seeds the
+	// compile-time defaults; Reload overlays user-supplied YAML.
+	//
+	// The path is passed through even when empty: that is how Loader.Load is
+	// told to walk its search list (./config/distributions.yaml, ./distributions
+	// .yaml, /etc/apt-proxy, ~/.config/apt-proxy), which is the behaviour the
+	// README documents. Guarding this call on a non-empty path made that search
+	// unreachable from the server, so a distributions.yaml sitting at one of
+	// those paths was silently ignored unless the operator also named it.
+	//
+	// Reload parses before it mutates, so a missing file is a no-op and an
+	// unparseable one leaves these built-ins in place.
 	s.registry = distro.NewBuiltinRegistry()
-	if s.config.DistributionsConfigPath != "" {
-		if err := s.registry.Reload(s.config.DistributionsConfigPath); err != nil {
-			s.log.Warn().
-				Err(err).
-				Str("path", s.config.DistributionsConfigPath).
-				Msg("failed to load distributions config; using built-in defaults")
-		}
+	if err := s.registry.Reload(s.config.DistributionsConfigPath); err != nil {
+		s.log.Warn().
+			Err(err).
+			Str("path", s.config.DistributionsConfigPath).
+			Msg("failed to load distributions config; using built-in defaults")
 	}
+	s.logRegisteredDistributions()
 
 	// Build the per-Server AppState and apply config (proxy mode, mirrors).
 	s.state = state.NewAppState()
@@ -214,6 +225,15 @@ func (s *Server) initialize() error {
 	// Initialize proxy with async benchmark for faster startup.
 	// This uses default mirrors immediately and updates to the fastest mirror
 	// in the background after benchmarking completes.
+	// ValidateConfig already rejected a malformed allowlist, so a failure here
+	// would mean the config changed underneath us; treat it as an init error
+	// rather than starting with a list that is not what was written.
+	allowlist, err := passthrough.Parse(s.config.Passthrough)
+	if err != nil {
+		return wrapErr(apperrors.ErrServerInit, "failed to parse passthrough allowlist", err)
+	}
+	s.logPassthrough(allowlist)
+
 	ps, err := proxy.NewPackageStruct(proxy.Options{
 		State:           s.state,
 		Registry:        s.registry,
@@ -222,6 +242,7 @@ func (s *Server) initialize() error {
 		Mode:            s.state.GetProxyMode(),
 		EnableKeepAlive: s.config.UpstreamKeepAlive,
 		Async:           true,
+		Passthrough:     allowlist,
 	})
 	if err != nil {
 		return wrapErr(apperrors.ErrServerInit, "failed to initialize proxy", err)
@@ -425,6 +446,9 @@ func (s *Server) createFiberApp() *fiber.App {
 	}
 	app.Use(logger.FiberMiddleware(logCfg))
 
+	// Register CONNECT handler for TLS tunneling
+	app.Add([]string{fiber.MethodConnect}, "/*", proxy.HandleConnect)
+
 	// Health check endpoints (Fiber native)
 	// We deliberately use a local handler instead of health.FiberHandler /
 	// health.FiberReadinessHandler: the upstream helpers feed the fasthttp
@@ -588,11 +612,61 @@ func (s *Server) Start() error {
 	}
 }
 
+// logRegisteredDistributions reports the distributions in effect and the file
+// they came from. Without it there is no way to tell a distributions.yaml that
+// registered from one that was never found -- both just serve, and the custom
+// distribution 404s with nothing said about why.
+func (s *Server) logRegisteredDistributions() {
+	if s.registry == nil {
+		return
+	}
+
+	all := s.registry.GetAll()
+	ids := make([]string, 0, len(all))
+	for id := range all {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+
+	path := s.registry.ConfigPath()
+	if path == "" {
+		path = "(built-in defaults)"
+	}
+	s.log.Info().
+		Str("config", path).
+		Strs("distributions", ids).
+		Msg("distributions registered")
+}
+
+// logPassthrough reports the allowlisted origins at startup. Widening what a
+// shared proxy will fetch is worth a line in the log, and it is the only way
+// to tell a list that parsed from one that was never read.
+func (s *Server) logPassthrough(list *passthrough.List) {
+	if list.Empty() {
+		return
+	}
+	origins := make([]string, 0, len(list.Rules()))
+	for _, rule := range list.Rules() {
+		origin := rule.Host
+		if rule.Port != "" {
+			origin = net.JoinHostPort(rule.Host, rule.Port)
+		}
+		if rule.ForceHTTPS {
+			origin = "https://" + origin
+		}
+		origins = append(origins, origin)
+	}
+	s.log.Info().
+		Strs("origins", origins).
+		Msg("passthrough enabled for third-party origins")
+}
+
 // refreshMirrors reloads distributions config (when configured) and
 // refreshes mirror selection on this Server's proxy. Used as the reload
 // closure for the mirrors API handler and for SIGHUP-triggered reloads.
 func (s *Server) refreshMirrors() {
-	if s.registry != nil && s.config.DistributionsConfigPath != "" {
+	// Empty path is meaningful here too -- see the note in initialize.
+	if s.registry != nil {
 		if err := s.registry.Reload(s.config.DistributionsConfigPath); err != nil {
 			s.log.Warn().
 				Err(err).

@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/api"
 )
 
 // TestHealthEndpoint tests the health check endpoint.

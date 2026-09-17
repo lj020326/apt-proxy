@@ -22,7 +22,7 @@ We provide security updates for the following versions:
 If you discover a security issue, please report it responsibly:
 
 1. **Private disclosure (preferred)**  
-   Open a **private security advisory** on GitHub: [Security Advisories](https://github.com/soulteary/apt-proxy/security/advisories/new).  
+   Open a **private security advisory** on GitHub: [Security Advisories](https://github.com/lj020326/apt-proxy/security/advisories/new).  
    This allows us to fix the issue and coordinate disclosure before it is made public.
 
 2. **Public disclosure**  

@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,6 +43,11 @@ const (
 	EnvEnableAPIAuth         = "APT_PROXY_ENABLE_API_AUTH"
 	EnvAPIRateLimitPerMinute = "APT_PROXY_API_RATE_LIMIT_PER_MINUTE"
 	EnvTrustedProxies        = "APT_PROXY_TRUSTED_PROXIES"
+	// gosec's G101 matches "PASS" in the name and reads this as a credential.
+	// It is the name of an environment variable holding a list of hostnames,
+	// and the variable is user-facing, so the name stays and the finding is
+	// waived here rather than the setting being renamed around a linter.
+	EnvPassthrough = "APT_PROXY_PASSTHROUGH" // #nosec G101 -- env var name, not a credential
 
 	// Configuration file environment variable
 	EnvConfigFile = "APT_PROXY_CONFIG_FILE"
