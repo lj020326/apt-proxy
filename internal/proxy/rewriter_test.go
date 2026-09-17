@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/state"
 )
 
 func TestCreateNewRewriters(t *testing.T) {
@@ -205,11 +205,11 @@ func TestRewriteRequestByModePathPrefix(t *testing.T) {
 		{
 			name:           "debian-security alias translates archive path",
 			mirror:         "http://archive.example.com/debian/",
-			securityMirror: "cn:tsinghua",
+			securityMirror: "us:mit",
 			mode:           distro.TypeDebian,
 			distType:       distro.TypeDebian,
 			path:           "/debian-security/dists/bookworm-security/Release",
-			wantHost:       "mirrors.tuna.tsinghua.edu.cn",
+			wantHost:       "mirrors.mit.edu",
 			wantPath:       "/debian-security/dists/bookworm-security/Release",
 		},
 		{
@@ -296,7 +296,7 @@ func TestRewriteRequestByModeNilRewriters(t *testing.T) {
 	RewriteRequestByMode(req, nil, distro.TypeUbuntu)
 }
 
-func TestGetRewriterConfig(t *testing.T) {
+func TestResolveDescriptor(t *testing.T) {
 	tests := []struct {
 		mode     int
 		wantName string
@@ -312,7 +312,7 @@ func TestGetRewriterConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.wantName, func(t *testing.T) {
-			descriptor, name := getRewriterConfig(tt.mode)
+			descriptor, name := resolveDescriptor(tt.mode, nil)
 			if tt.wantNil {
 				if descriptor != nil {
 					t.Error("Expected nil descriptor for unknown mode")

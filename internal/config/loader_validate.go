@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/passthrough"
+	"github.com/lj020326/apt-proxy/internal/state"
 )
 
 // ApplyToState writes the proxy mode and per-distro mirror URLs from
@@ -69,6 +70,13 @@ func ValidateConfig(config *Config) error {
 	}
 	if config.Security.EnableAPIAuth && strings.TrimSpace(config.Security.APIKey) == "" {
 		return fmt.Errorf("API authentication is enabled but api_key is empty")
+	}
+
+	// The passthrough allowlist widens what apt-proxy will fetch, so a typo in
+	// it must not be tolerated: refuse to start rather than silently allow
+	// less (or more) than the operator wrote.
+	if _, err := passthrough.Parse(config.Passthrough); err != nil {
+		return fmt.Errorf("invalid passthrough configuration: %w", err)
 	}
 
 	// Validate storage backend selection and corresponding fields. The

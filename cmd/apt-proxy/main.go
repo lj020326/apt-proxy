@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/soulteary/apt-proxy/internal/cli"
+	"github.com/lj020326/apt-proxy/internal/cli"
 )
 
 // Build metadata injected via -ldflags at release time.
