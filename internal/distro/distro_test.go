@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 func TestRuleToString(t *testing.T) {
@@ -37,25 +37,25 @@ func TestRuleToString(t *testing.T) {
 }
 
 func TestGenerateAliasFromURL(t *testing.T) {
-	if distro.GenerateAliasFromURL("http://mirrors.cn99.com/ubuntu/") != "cn:cn99" {
+	if distro.GenerateAliasFromURL("http://us.archive.ubuntu.com/ubuntu/") != "us:archive" {
 		t.Fatal("generate alias from url failed")
 	}
 
-	if distro.GenerateAliasFromURL("https://mirrors.tuna.tsinghua.edu.cn/ubuntu/") != "cn:tsinghua" {
+	if distro.GenerateAliasFromURL("https://mirrors.ocf.berkeley.edu/ubuntu/") != "us:berkeley" {
 		t.Fatal("generate alias from url failed")
 	}
 
-	if distro.GenerateAliasFromURL("mirrors.cnnic.cn/ubuntu/") != "cn:cnnic" {
+	if distro.GenerateAliasFromURL("mirror.clarkson.edu/ubuntu/") != "us:clarkson" {
 		t.Fatal("generate alias from url failed")
 	}
 }
 
 func TestGenerateBuildInMirorItem(t *testing.T) {
-	mirror := distro.GenerateBuildInMirorItem("http://mirrors.tuna.tsinghua.edu.cn/ubuntu/", true)
+	mirror := distro.GenerateBuildInMirorItem("http://mirrors.ocf.berkeley.edu/ubuntu/", true)
 	if (mirror.HTTP() != true || mirror.HTTPS() != false) || mirror.Official != true {
 		t.Fatal("generate build-in mirror item failed")
 	}
-	mirror = distro.GenerateBuildInMirorItem("https://mirrors.tuna.tsinghua.edu.cn/ubuntu/", false)
+	mirror = distro.GenerateBuildInMirorItem("https://mirrors.ocf.berkeley.edu/ubuntu/", false)
 	if (mirror.HTTP() != false || mirror.HTTPS() != true) || mirror.Official != false {
 		t.Fatal("generate build-in mirror item failed")
 	}

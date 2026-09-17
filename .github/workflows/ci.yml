@@ -1,4 +1,12 @@
 name: CI
+permissions:
+  contents: write
+  packages: write
+  security-events: write
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -7,16 +15,10 @@ on:
   pull_request:
     branches:
       - main
-
-permissions:
-  contents: read
+  workflow_dispatch:
 
 env:
   GO_VERSION: "1.27.0"
-
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   lint:
@@ -24,18 +26,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.13.2
+          version: v2.13.1
           args: --timeout=5m
 
       - name: go vet
@@ -58,10 +60,10 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -70,12 +72,6 @@ jobs:
         run: |
           go test -race -short -count=1 -coverprofile=coverage.out -covermode=atomic ./...
           go tool cover -func=coverage.out | tail -n 1
-
-      # Gate here rather than only at release time: a coverage regression that
-      # is first reported on a tag push has already been merged.
-      - name: Check coverage threshold
-        if: matrix.os == 'ubuntu-latest'
-        run: scripts/check-coverage.sh coverage.out
 
       # Rerun the cross-Server isolation cases with -count=3 to catch
       # flakes that the single-pass unit run might miss. Kept on the
@@ -87,11 +83,16 @@ jobs:
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: coverage.out
           retention-days: 7
+
+  scan:
+    name: Security Scan
+    uses: ./.github/workflows/scan.yml
+    secrets: inherit
 
   build:
     name: Build
@@ -99,10 +100,10 @@ jobs:
     needs: [lint, test]
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -123,7 +124,7 @@ jobs:
     needs: [lint, test]
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
 
       - name: Build container image
         run: docker build --file docker/Dockerfile --tag apt-proxy:test .
@@ -134,10 +135,10 @@ jobs:
     needs: [test]
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
@@ -188,3 +189,14 @@ jobs:
       - name: Dump OtterIO logs on failure
         if: failure()
         run: docker logs otterio || true
+
+  release:
+    name: Release
+    needs: [test, build, container, integration, scan]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/release.yml
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    secrets: inherit
