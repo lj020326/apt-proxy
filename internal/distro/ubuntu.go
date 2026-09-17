@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,37 +25,29 @@ const (
 
 var UbuntuHostPattern = regexp.MustCompile(`/ubuntu/(.+)$`)
 
-// http://mirrors.ubuntu.com/mirrors.txt 2022.11.19
-// Sites that contain protocol headers, restrict access to resources using that protocol
+// US-based official Canonical and primary regional mirror endpoints.
+// Sites that contain protocol headers restrict access to resources using that protocol.
 var UbuntuOfficialMirrors = []string{
-	"mirrors.cn99.com/ubuntu/",
-	"mirrors.tuna.tsinghua.edu.cn/ubuntu/",
-	"mirrors.cnnic.cn/ubuntu/",
-	"mirror.bjtu.edu.cn/ubuntu/",
-	"mirrors.cqu.edu.cn/ubuntu/",
-	"http://mirrors.skyshe.cn/ubuntu/",
-	"mirrors.yun-idc.com/ubuntu/",
-	"http://mirror.dlut.edu.cn/ubuntu/",
-	"mirrors.xjtu.edu.cn/ubuntu/",
-	"mirrors.huaweicloud.com/repository/ubuntu/",
-	"mirrors.bupt.edu.cn/ubuntu/",
-	"mirrors.hit.edu.cn/ubuntu/",
-	"http://mirrors.sohu.com/ubuntu/",
-	"mirror.nju.edu.cn/ubuntu/",
-	"mirrors.bfsu.edu.cn/ubuntu/",
-	"mirror.lzu.edu.cn/ubuntu/",
-	"mirrors.aliyun.com/ubuntu/",
-	"ftp.sjtu.edu.cn/ubuntu/",
-	"mirrors.njupt.edu.cn/ubuntu/",
-	"mirrors.cloud.tencent.com/ubuntu/",
-	"http://mirrors.dgut.edu.cn/ubuntu/",
-	"mirrors.ustc.edu.cn/ubuntu/",
-	"mirrors.sdu.edu.cn/ubuntu/",
-	"http://cn.archive.ubuntu.com/ubuntu/",
+	"us.archive.ubuntu.com/ubuntu/",
+	"security.ubuntu.com/ubuntu/",
+	"archive.ubuntu.com/ubuntu/",
+	"releases.ubuntu.com/ubuntu/",
+	"ports.ubuntu.com/ubuntu-ports/",
+	"mirrors.kernel.org/ubuntu/",
+	"mirror.us.leaseweb.net/ubuntu/",
+	"mirror.clarkson.edu/ubuntu/",
+	"mirrors.rit.edu/ubuntu/",
+	"mirror.math.princeton.edu/pub/ubuntu/",
+	"mirrors.mit.edu/ubuntu/",
+	"mirrors.ocf.berkeley.edu/ubuntu/",
+	"mirrors.edge.kernel.org/ubuntu/",
+	"mirror.cs.vt.edu/pub/ubuntu/",
+	"mirrors.tripole.ru/ubuntu/",
 }
 
 var UbuntuCustomMirrors = []string{
-	"mirrors.163.com/ubuntu/",
+	"mirror.steadfast.net/ubuntu/",
+	"mirror.cc.columbia.edu/pub/linux/ubuntu/archive/",
 }
 
 var BuiltinUbuntuMirrors = GenerateBuildInList(UbuntuOfficialMirrors, UbuntuCustomMirrors)

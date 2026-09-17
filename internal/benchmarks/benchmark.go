@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	logger "github.com/soulteary/logger-kit/v2"
+	logger "github.com/lj020326/logger-kit/v2"
 	"golang.org/x/sync/singleflight"
 )
 

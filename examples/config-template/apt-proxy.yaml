@@ -85,16 +85,16 @@ storage:
 #   - archive.internal.example:8080
 
 # Mirror configuration
-# Use full URLs or shortcuts (e.g., cn:tsinghua, cn:ustc, cn:aliyun)
+# Use full URLs or shortcuts (e.g., us:archive, us:mit, us:ftp)
 mirrors:
   # Ubuntu mirror
-  ubuntu: cn:tsinghua
+  ubuntu: us:archive
   
   # Ubuntu Ports mirror (for ARM, etc.)
   ubuntu_ports: ""
   
   # Debian mirror
-  debian: cn:ustc
+  debian: us:mit
 
   # Optional dedicated Debian Security mirror (derived from Debian when empty)
   debian_security: ""

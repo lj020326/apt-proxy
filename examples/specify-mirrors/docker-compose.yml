@@ -1,11 +1,16 @@
-name: apt-cache
+name: apt-proxy-specify-mirrors
 
 services:
   apt-proxy:
-    image: soulteary/apt-proxy
-    restart: always
-    command: --ubuntu=cn:tsinghua --debian=cn:tsinghua
+    image: lj020326/apt-proxy
+    restart: unless-stopped
+    command: --ubuntu=us:archive --debian=us:mit
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=Etc/UTC
     ports:
       - "3142:3142"
+    volumes:
+      - apt-proxy-cache:/var/cache/apt-proxy
+
+volumes:
+  apt-proxy-cache:

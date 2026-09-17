@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,23 +29,23 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
-	health "github.com/soulteary/health-kit/v2"
-	logger "github.com/soulteary/logger-kit/v2"
-	metrics "github.com/soulteary/metrics-kit/v2"
-	middleware "github.com/soulteary/middleware-kit/v2"
-	tracing "github.com/soulteary/tracing-kit"
-	version "github.com/soulteary/version-kit/v2"
+	health "github.com/lj020326/health-kit/v2"
+	logger "github.com/lj020326/logger-kit/v2"
+	metrics "github.com/lj020326/metrics-kit/v2"
+	middleware "github.com/lj020326/middleware-kit/v2"
+	tracing "github.com/lj020326/tracing-kit"
+	version "github.com/lj020326/version-kit/v2"
 
-	"github.com/soulteary/apt-proxy/internal/api"
-	"github.com/soulteary/apt-proxy/internal/config"
-	"github.com/soulteary/apt-proxy/internal/distro"
-	apperrors "github.com/soulteary/apt-proxy/internal/errors"
-	"github.com/soulteary/apt-proxy/internal/passthrough"
-	"github.com/soulteary/apt-proxy/internal/proxy"
-	"github.com/soulteary/apt-proxy/internal/state"
-	"github.com/soulteary/apt-proxy/internal/storage/s3vfs"
-	httpcache "github.com/soulteary/httpcache-kit/v2"
-	vfs "github.com/soulteary/vfs-kit"
+	"github.com/lj020326/apt-proxy/internal/api"
+	"github.com/lj020326/apt-proxy/internal/config"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	apperrors "github.com/lj020326/apt-proxy/internal/errors"
+	"github.com/lj020326/apt-proxy/internal/passthrough"
+	"github.com/lj020326/apt-proxy/internal/proxy"
+	"github.com/lj020326/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/storage/s3vfs"
+	httpcache "github.com/lj020326/httpcache-kit/v2"
+	vfs "github.com/lj020326/vfs-kit"
 )
 
 // Server represents the main application server that handles HTTP requests,
@@ -445,6 +445,9 @@ func (s *Server) createFiberApp() *fiber.App {
 		}
 	}
 	app.Use(logger.FiberMiddleware(logCfg))
+
+	// Register CONNECT handler for TLS tunneling
+	app.Add([]string{fiber.MethodConnect}, "/*", proxy.HandleConnect)
 
 	// Health check endpoints (Fiber native)
 	// We deliberately use a local handler instead of health.FiberHandler /
