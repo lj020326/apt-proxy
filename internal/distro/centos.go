@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,25 +20,23 @@ var CentosHostPattern = regexp.MustCompile(`/centos/(.+)$`)
 
 const CentosBenchmarkURL = "TIME"
 
-// https://www.centos.org/download/mirrors/ 2022.11.19
-// Sites that contain protocol headers, restrict access to resources using that protocol
+// Official CentOS Vault and US regional mirror endpoints.
+// Sites that contain protocol headers restrict access to resources using that protocol.
 var CentosOfficialMirrors = []string{
-	"mirrors.bfsu.edu.cn/centos/",
-	"mirrors.cqu.edu.cn/CentOS/",
-	"http://mirrors.neusoft.edu.cn/centos/",
-	"mirrors.nju.edu.cn/centos/",
-	"mirrors.huaweicloud.com/centos/",
-	"mirror.lzu.edu.cn/centos/",
-	"http://mirrors.njupt.edu.cn/centos/",
-	"mirrors.163.com/centos/",
-	"mirrors.bupt.edu.cn/centos/",
-	"ftp.sjtu.edu.cn/centos/",
-	"mirrors.tuna.tsinghua.edu.cn/centos/",
-	"mirrors.ustc.edu.cn/centos/",
+	"vault.centos.org/centos/",
+	"mirror.centos.org/centos/",
+	"mirrors.kernel.org/centos/",
+	"mirror.us.leaseweb.net/centos/",
+	"mirror.clarkson.edu/centos/",
+	"mirrors.rit.edu/centos/",
+	"mirror.math.princeton.edu/pub/centos/",
+	"mirrors.ocf.berkeley.edu/centos/",
+	"mirror.cs.vt.edu/pub/centos/",
 }
 
 var CentosCustomMirrors = []string{
-	"mirrors.aliyun.com/centos/",
+	"mirror.steadfast.net/centos/",
+	"mirror.cc.columbia.edu/pub/linux/centos/",
 }
 
 var BuiltinCentosMirrors = GenerateBuildInList(CentosOfficialMirrors, CentosCustomMirrors)

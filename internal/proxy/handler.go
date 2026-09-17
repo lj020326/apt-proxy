@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	logger "github.com/soulteary/logger-kit/v2"
-	tracing "github.com/soulteary/tracing-kit"
+	logger "github.com/lj020326/logger-kit/v2"
+	tracing "github.com/lj020326/tracing-kit"
 
-	"github.com/soulteary/apt-proxy/internal/benchmarks"
-	"github.com/soulteary/apt-proxy/internal/distro"
-	"github.com/soulteary/apt-proxy/internal/state"
+	"github.com/lj020326/apt-proxy/internal/benchmarks"
+	"github.com/lj020326/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/state"
 )
 
 // Default transport timeouts and limits for upstream requests.
@@ -94,13 +94,34 @@ func detachHeader(header http.Header) http.Header {
 	return detached
 }
 
+// matchingCacheRule returns the first cache rule whose pattern matches path,
+// without rewriting the request. Used by the HTTPS/// path so third-party
+// TLS origins keep their host while still getting sensible Cache-Control.
+func (ap *PackageStruct) matchingCacheRule(path string) *distro.Rule {
+	if ap == nil {
+		return nil
+	}
+	for _, entry := range ap.hostPatterns() {
+		if !matchesDistroPath(entry.pattern, path) {
+			continue
+		}
+		if rule, ok := MatchingRule(path, entry.rules); ok {
+			return rule
+		}
+	}
+	return nil
+}
+
 // hostPatternEntry pairs a compiled URL pattern with its rules and is used
 // instead of map[*regexp.Regexp][]Rule on the request hot path. A slice
 // preserves insertion order so the rule selected for a request is
 // deterministic across builds (Go map iteration is intentionally randomised).
 type hostPatternEntry struct {
 	pattern *regexp.Regexp
-	rules   []distro.Rule
+	// hostPattern, when set, matches the request's Host header for archives
+	// served from the host root. It is tried only after pattern fails.
+	hostPattern *regexp.Regexp
+	rules       []distro.Rule
 }
 
 // defaultHostPatterns is the compile-time fallback used when the
@@ -109,7 +130,7 @@ type hostPatternEntry struct {
 var defaultHostPatterns = []hostPatternEntry{
 	{pattern: distro.UbuntuHostPattern, rules: distro.UbuntuDefaultCacheRules},
 	{pattern: distro.UbuntuPortsHostPattern, rules: distro.UbuntuPortsDefaultCacheRules},
-	{pattern: distro.DebianHostPattern, rules: distro.DebianDefaultCacheRules},
+	{pattern: distro.DebianHostPattern, hostPattern: distro.DebianSecurityHostPattern, rules: distro.DebianDefaultCacheRules},
 	{pattern: distro.CentosHostPattern, rules: distro.CentosDefaultCacheRules},
 	{pattern: distro.AlpineHostPattern, rules: distro.AlpineDefaultCacheRules},
 }
@@ -129,7 +150,7 @@ func hostPatternsFromRegistry(reg *distro.Registry) []hostPatternEntry {
 			if d.Type != mode || d.URLPattern == nil || len(d.CacheRules) == 0 {
 				continue
 			}
-			out = append(out, hostPatternEntry{pattern: d.URLPattern, rules: d.CacheRules})
+			out = append(out, hostPatternEntry{pattern: d.URLPattern, hostPattern: d.HostPattern, rules: d.CacheRules})
 			seen[id] = struct{}{}
 		}
 	}
@@ -140,7 +161,7 @@ func hostPatternsFromRegistry(reg *distro.Registry) []hostPatternEntry {
 		if d.URLPattern == nil || len(d.CacheRules) == 0 {
 			continue
 		}
-		out = append(out, hostPatternEntry{pattern: d.URLPattern, rules: d.CacheRules})
+		out = append(out, hostPatternEntry{pattern: d.URLPattern, hostPattern: d.HostPattern, rules: d.CacheRules})
 	}
 	return out
 }
@@ -327,6 +348,50 @@ func (ap *PackageStruct) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	// memory that the adapter can reuse for the next request.
 	r = detachRequest(spanCtx, r)
 
+	// apt-cacher-ng 'HTTPS///' marker: client speaks HTTP to us; we fetch the
+	// real origin over TLS and can therefore cache the cleartext response.
+	if hasTLSRewriteMarker(r) {
+		if !applyTLSRewrite(r) {
+			ap.log.Warn().
+				Str("path", r.URL.Path).
+				Str("host", r.Host).
+				Msg("malformed apt-cacher-ng HTTPS/// rewrite marker")
+			tracing.SetSpanAttributes(span, map[string]string{
+				"http.status_code": "400",
+			})
+			http.Error(rw, "malformed HTTPS/// rewrite marker", http.StatusBadRequest)
+			return
+		}
+		ap.log.Debug().
+			Str("upstream", r.URL.String()).
+			Msg("HTTPS/// marker rewritten to TLS upstream")
+
+		// Match cache headers only. Never run processMatchingRule/rewriteRequest
+		// — that would replace the TLS origin with a distro mirror.
+		rule := ap.matchingCacheRule(r.URL.Path)
+		if rule == nil {
+			// Unknown host: still proxy+cache with a conservative default rule
+			// so third-party HTTPS-only archives work without a distro entry.
+			rule = defaultTLSCacheRule(r.URL.Path)
+		} else if rule.Rewrite {
+			// Marker already set scheme/host; do not run distro mirror rewrite
+			// (that would replace get.docker.com with the Ubuntu mirror).
+			copied := *rule
+			copied.Rewrite = false
+			rule = &copied
+		}
+
+		r.Header.Del("Cache-Control")
+
+		if ap.Handler != nil {
+			ap.Handler.ServeHTTP(&responseWriter{rw, rule}, r)
+		} else {
+			tracing.RecordError(span, http.ErrAbortHandler)
+			http.Error(rw, "Internal Server Error: handler not initialized", http.StatusInternalServerError)
+		}
+		return
+	}
+
 	rule := ap.handleExternalURLs(r)
 	if rule != nil {
 		if name := distro.DistributionName(rule.OS); name != "" {
@@ -382,12 +447,47 @@ func (ap *PackageStruct) invalidateHostPatterns() {
 // the appropriate caching rule if a match is found.
 func (ap *PackageStruct) handleExternalURLs(r *http.Request) *distro.Rule {
 	path := r.URL.Path
-	for _, entry := range ap.hostPatterns() {
-		if entry.pattern.MatchString(path) {
+	entries := ap.hostPatterns()
+
+	// Path match first: it is the common case and the more specific signal,
+	// so an archive reachable by path keeps its existing routing even when
+	// some other distro claims the same host. matchesDistroPath additionally
+	// rejects a match hiding behind a path prefix that is not a mirror host,
+	// which is what keeps a third-party archive (a PPA, a vendor repo) from
+	// being answered out of the distribution's own mirror -- see hostprefix.go.
+	for _, entry := range entries {
+		if matchesDistroPath(entry.pattern, path) {
+			return ap.processMatchingRule(r, entry.rules)
+		}
+	}
+
+	// Fall back to the Host header for archives served from the host root,
+	// where no path prefix exists for the URL pattern to match.
+	host := requestHost(r)
+	if host == "" {
+		return nil
+	}
+	for _, entry := range entries {
+		if entry.hostPattern != nil && entry.hostPattern.MatchString(host) {
 			return ap.processMatchingRule(r, entry.rules)
 		}
 	}
 	return nil
+}
+
+// requestHost returns the host the client addressed, lower-cased. net/http
+// moves the Host header into r.Host and leaves r.URL.Host empty for server
+// requests, but a proxied absolute-form request populates r.URL.Host, so
+// prefer that. DNS names are case-insensitive, so the result is normalised and
+// host patterns are written in lower case.
+func requestHost(r *http.Request) string {
+	if r == nil {
+		return ""
+	}
+	if r.URL != nil && r.URL.Host != "" {
+		return strings.ToLower(r.URL.Host)
+	}
+	return strings.ToLower(r.Host)
 }
 
 // processMatchingRule processes a request that matches a distribution pattern.

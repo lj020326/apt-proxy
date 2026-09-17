@@ -2,7 +2,7 @@
 # The image is rebuilt by GoReleaser per arch; the binary is provided by the goreleaser context.
 FROM gcr.io/distroless/static-debian12:nonroot
 
-LABEL org.opencontainers.image.source="https://github.com/soulteary/apt-proxy"
+LABEL org.opencontainers.image.source="https://github.com/lj020326/apt-proxy"
 
 COPY apt-proxy /usr/bin/apt-proxy
 

@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	httpkit "github.com/soulteary/http-kit"
+	httpkit "github.com/lj020326/http-kit"
 )
 
 // TestRetryableTransportRetriesOn5xx ensures the transport retries on a 5xx
