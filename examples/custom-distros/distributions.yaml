@@ -41,9 +41,9 @@ distributions:
     mirrors:
       official:
         - "community-packages.deepin.com/deepin/"
-        - "mirrors.tuna.tsinghua.edu.cn/deepin/"
+        - "mirror.csail.mit.edu/deepin/"
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/deepin/"
+      mit: "mirror.csail.mit.edu/deepin/"
 
   # --------------------------------------------------------------- Armbian --
   # Armbian's sources.list is `deb http://apt.armbian.com <suite> main`, so
@@ -68,8 +68,8 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/armbian/"
-        - "mirrors.ustc.edu.cn/armbian/"
+        - "apt.armbian.com/"
+        - "mirrors.netix.net/armbian/apt/"
 
   # ------------------------------------------------------------ Arch Linux --
   # /etc/pacman.d/mirrorlist:
@@ -95,5 +95,5 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/archlinux/"
-        - "mirrors.ustc.edu.cn/archlinux/"
+        - "mirrors.kernel.org/archlinux/"
+        - "mirror.math.princeton.edu/pub/archlinux/"

@@ -1,21 +1,23 @@
-module github.com/soulteary/apt-proxy
+module github.com/lj020326/apt-proxy
 
 go 1.27.0
 
 require (
+	github.com/gofiber/fiber/v2 v2.52.15
 	github.com/gofiber/fiber/v3 v3.5.0
 	github.com/hashicorp/golang-lru/v2 v2.0.7
+	github.com/lj020326/cli-kit v1.9.1-0.20260914153119-7ff9490b5b94
+	github.com/lj020326/health-kit/v2 v2.3.1-0.20260914153137-a43ee1a71d41
+	github.com/lj020326/http-kit v1.5.1-0.20260914153145-e5f6155f61b6
+	github.com/lj020326/httpcache-kit/v2 v2.3.1-0.20260914153156-27ec41847d68
+	github.com/lj020326/logger-kit/v2 v2.3.1-0.20260914153205-df18a916bc65
+	github.com/lj020326/metrics-kit/v2 v2.2.1-0.20260914153213-8d8164af3760
+	github.com/lj020326/middleware-kit/v2 v2.2.1-0.20260914153221-51e3661a9327
+	github.com/lj020326/tracing-kit v1.5.1-0.20260914153230-01044217d104
+	github.com/lj020326/version-kit/v2 v2.2.1-0.20260914153237-7ffe61caadbe
+	github.com/lj020326/vfs-kit v1.4.1-0.20260914153244-c5d0535df43a
 	github.com/minio/minio-go/v7 v7.3.0
-	github.com/soulteary/cli-kit v1.9.0
-	github.com/soulteary/health-kit/v2 v2.3.0
-	github.com/soulteary/http-kit v1.5.0
-	github.com/soulteary/httpcache-kit/v2 v2.5.0
-	github.com/soulteary/logger-kit/v2 v2.3.0
-	github.com/soulteary/metrics-kit/v2 v2.2.0
-	github.com/soulteary/middleware-kit/v2 v2.2.0
-	github.com/soulteary/tracing-kit v1.5.0
-	github.com/soulteary/version-kit/v2 v2.2.0
-	github.com/soulteary/vfs-kit v1.4.2
+	github.com/stretchr/testify v1.12.1
 	go.opentelemetry.io/otel v1.46.0
 	golang.org/x/sync v0.23.0
 	golang.org/x/sys v0.48.0
@@ -26,6 +28,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -39,6 +42,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
+	github.com/mattn/go-runewidth v0.0.23 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/molecule-man/go-brrr v1.1.0 // indirect

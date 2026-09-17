@@ -1,81 +1,6 @@
 # apt-proxy distributions configuration
 # Add or edit distributions and mirrors here. Reload with SIGHUP or POST /api/mirrors/refresh.
 # If mirrors.official/custom are empty for a distribution, built-in mirrors are used for that dist.
-#
-# distributions:
-#   - id: ubuntu
-#     name: Ubuntu
-#     type: 1
-#     url_pattern: "/ubuntu/(.+)$"
-#     benchmark_url: "dists/noble/main/binary-amd64/Release"
-#     geo_mirror_api: "http://mirrors.ubuntu.com/mirrors.txt"
-#     cache_rules:
-#       - pattern: "deb$"
-#         cache_control: "max-age=100000"
-#         rewrite: true
-#       - pattern: "InRelease$"
-#         cache_control: "max-age=3600"
-#         rewrite: true
-#     mirrors:
-#       official:
-#         - "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-#         - "mirrors.ustc.edu.cn/ubuntu/"
-#       custom:
-#         - "mirrors.163.com/ubuntu/"
-#     aliases:
-#       tsinghua: "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-#       ustc: "mirrors.ustc.edu.cn/ubuntu/"
-#       aliyun: "mirrors.aliyun.com/ubuntu/"
-#       tencent: "mirrors.cloud.tencent.com/ubuntu/"
-#       163: "mirrors.163.com/ubuntu/"
-#       huaweicloud: "mirrors.huaweicloud.com/repository/ubuntu/"
-#
-# A type outside 1..5 registers a distribution apt-proxy does not ship. It gets
-# its own mirror list, benchmark and rewriter, same as a built-in one:
-#
-#   - id: deepin
-#     name: Deepin
-#     type: 6
-#     url_pattern: "/deepin/(.+)$"
-#     benchmark_url: "dists/apricot/main/binary-amd64/Release"
-#     cache_rules:
-#       - pattern: "deb$"
-#         cache_control: "max-age=100000"
-#         rewrite: true
-#       - pattern: "(InRelease|Release(\\.gpg)?)$"
-#         cache_control: "max-age=3600"
-#         rewrite: true
-#       # Catch-all last: apt also fetches package indexes
-#       # (Packages.xz, by-hash/...), and an unmatched path is a 404.
-#       - pattern: ".*"
-#         cache_control: "max-age=3600"
-#         rewrite: true
-#     mirrors:
-#       official:
-#         - "community-packages.deepin.com/deepin/"
-#
-# When the archive sits at a domain root there is no path prefix to match, so
-# name it by Host instead (apt writes `deb http://apt.armbian.com <suite> main`):
-#
-#   - id: armbian
-#     name: Armbian
-#     type: 7
-#     url_pattern: "/armbian/(.+)$"
-#     host_pattern: "^apt\\.armbian\\.com(:\\d+)?$"
-#     benchmark_url: "dists/bookworm/main/binary-arm64/Release"
-#     cache_rules:
-#       - pattern: "deb$"
-#         cache_control: "max-age=100000"
-#         rewrite: true
-#       - pattern: "(InRelease|Release(\\.gpg)?)$"
-#         cache_control: "max-age=3600"
-#         rewrite: true
-#       - pattern: ".*"
-#         cache_control: "max-age=3600"
-#         rewrite: true
-#     mirrors:
-#       official:
-#         - "mirrors.tuna.tsinghua.edu.cn/armbian/"
 
 distributions:
   - id: ubuntu
@@ -120,21 +45,13 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.cn99.com/ubuntu/"
-        - "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-        - "mirrors.ustc.edu.cn/ubuntu/"
-        - "mirrors.aliyun.com/ubuntu/"
-        - "mirrors.cloud.tencent.com/ubuntu/"
-        - "mirrors.huaweicloud.com/repository/ubuntu/"
-        - "mirrors.163.com/ubuntu/"
+        - "archive.ubuntu.com/ubuntu/"
+        - "us.archive.ubuntu.com/ubuntu/"
+        - "mirrors.kernel.org/ubuntu/"
       custom: []
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/ubuntu/"
-      ustc: "mirrors.ustc.edu.cn/ubuntu/"
-      aliyun: "mirrors.aliyun.com/ubuntu/"
-      tencent: "mirrors.cloud.tencent.com/ubuntu/"
-      163: "mirrors.163.com/ubuntu/"
-      huaweicloud: "mirrors.huaweicloud.com/repository/ubuntu/"
+      us: "us.archive.ubuntu.com/ubuntu/"
+      kernel: "mirrors.kernel.org/ubuntu/"
 
   - id: ubuntu-ports
     name: Ubuntu Ports
@@ -178,22 +95,18 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/"
-        - "mirrors.ustc.edu.cn/ubuntu-ports/"
-        - "mirrors.aliyun.com/ubuntu-ports/"
-        - "mirrors.cloud.tencent.com/ubuntu-ports/"
+        - "ports.ubuntu.com/ubuntu-ports/"
+        - "mirrors.kernel.org/ubuntu-ports/"
       custom: []
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/"
-      ustc: "mirrors.ustc.edu.cn/ubuntu-ports/"
-      aliyun: "mirrors.aliyun.com/ubuntu-ports/"
-      tencent: "mirrors.cloud.tencent.com/ubuntu-ports/"
+      official: "ports.ubuntu.com/ubuntu-ports/"
+      kernel: "mirrors.kernel.org/ubuntu-ports/"
 
   - id: debian
     name: Debian
     type: 3
     url_pattern: "/debian(-security)?/(.+)$"
-    benchmark_url: "dists/bullseye/main/binary-amd64/Release"
+    benchmark_url: "dists/bookworm/main/binary-amd64/Release"
     cache_rules:
       - pattern: "deb$"
         cache_control: "max-age=100000"
@@ -230,20 +143,11 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "http://ftp.cn.debian.org/debian/"
-        - "mirrors.tuna.tsinghua.edu.cn/debian/"
-        - "mirrors.ustc.edu.cn/debian/"
-        - "mirrors.163.com/debian/"
-      custom:
-        - "mirrors.aliyun.com/debian/"
-        - "mirrors.cloud.tencent.com/debian/"
-        - "mirrors.huaweicloud.com/debian/"
+        - "deb.debian.org/debian/"
+        - "ftp.us.debian.org/debian/"
+      custom: []
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/debian/"
-      ustc: "mirrors.ustc.edu.cn/debian/"
-      aliyun: "mirrors.aliyun.com/debian/"
-      tencent: "mirrors.cloud.tencent.com/debian/"
-      163: "mirrors.163.com/debian/"
+      us: "ftp.us.debian.org/debian/"
 
   - id: centos
     name: CentOS
@@ -271,18 +175,14 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/centos/"
-        - "mirrors.ustc.edu.cn/centos/"
-        - "mirrors.aliyun.com/centos/"
-        - "mirrors.163.com/centos/"
-        - "mirrors.huaweicloud.com/centos/"
+        - "mirror.stream.centos.org/centos/"
+        - "vault.centos.org/centos/"
+        - "mirrors.kernel.org/centos/"
       custom: []
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/centos/"
-      ustc: "mirrors.ustc.edu.cn/centos/"
-      aliyun: "mirrors.aliyun.com/centos/"
-      163: "mirrors.163.com/centos/"
-      huaweicloud: "mirrors.huaweicloud.com/centos/"
+      stream: "mirror.stream.centos.org/centos/"
+      vault: "vault.centos.org/centos/"
+      kernel: "mirrors.kernel.org/centos/"
 
   - id: alpine
     name: Alpine Linux
@@ -304,11 +204,9 @@ distributions:
         rewrite: true
     mirrors:
       official:
-        - "mirrors.tuna.tsinghua.edu.cn/alpine/"
-        - "mirrors.ustc.edu.cn/alpine/"
-        - "mirrors.aliyun.com/alpine/"
+        - "dl-cdn.alpinelinux.org/alpine/"
+        - "mirrors.kernel.org/alpine/"
       custom: []
     aliases:
-      tsinghua: "mirrors.tuna.tsinghua.edu.cn/alpine/"
-      ustc: "mirrors.ustc.edu.cn/alpine/"
-      aliyun: "mirrors.aliyun.com/alpine/"
+      cdn: "dl-cdn.alpinelinux.org/alpine/"
+      kernel: "mirrors.kernel.org/alpine/"

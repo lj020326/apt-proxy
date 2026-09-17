@@ -1,4 +1,4 @@
-// Copyright 2022 Su Yang
+// Copyright 2026 LJ Johnson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
-	logger "github.com/soulteary/logger-kit/v2"
+	logger "github.com/lj020326/logger-kit/v2"
 
-	"github.com/soulteary/apt-proxy/internal/distro"
+	"github.com/lj020326/apt-proxy/internal/distro"
 )
 
 // fiberApp mounts ps exactly as the daemon does (app.All("/*",
@@ -141,6 +141,27 @@ func TestTLSRewriteMarkerIsRejectedNotMisrouted(t *testing.T) {
 				t.Error("request was proxied upstream; it must be refused outright")
 			}
 		})
+	}
+}
+
+func TestParseTLSRewrite(t *testing.T) {
+	cases := []struct {
+		rawURL     string
+		host, path string
+		ok         bool
+	}{
+		{"http://HTTPS///get.docker.com/ubuntu/dists/stable/InRelease", "get.docker.com", "/ubuntu/dists/stable/InRelease", true},
+		{"http://proxy:3142/HTTPS///get.docker.com/ubuntu/x", "get.docker.com", "/ubuntu/x", true},
+		{"http://proxy:3142/https///deb.example.com/debian/dists/trixie/InRelease", "deb.example.com", "/debian/dists/trixie/InRelease", true},
+		{"http://archive.ubuntu.com/ubuntu/dists/noble/InRelease", "", "", false},
+	}
+	for _, tt := range cases {
+		req := httptest.NewRequest(http.MethodGet, tt.rawURL, nil)
+		host, path, ok := parseTLSRewriteMarker(req)
+		if ok != tt.ok || host != tt.host || path != tt.path {
+			t.Errorf("%s: got (%q,%q,%v) want (%q,%q,%v)",
+				tt.rawURL, host, path, ok, tt.host, tt.path, tt.ok)
+		}
 	}
 }
 
@@ -480,3 +501,20 @@ func TestTLSRewriteMarkerKeepsAPortTheMarkerNames(t *testing.T) {
 		}
 	}
 }
+
+//func TestDefaultTLSCacheRule(t *testing.T) {
+//	cases := []struct {
+//		path string
+//		want string
+//	}{
+//		{"/pool/main/a/foo.deb", "public, max-age=31536000, immutable"},
+//		{"/ubuntu/dists/jammy/InRelease", "public, max-age=300"},
+//		{"/some/other/file", "public, max-age=3600"},
+//	}
+//	for _, tt := range cases {
+//		got := defaultTLSCacheRule(tt.path)
+//		if got == nil || got.CacheControl != tt.want {
+//			t.Errorf("defaultTLSCacheRule(%q) = %#v, want CacheControl %q", tt.path, got, tt.want)
+//		}
+//	}
+//}
